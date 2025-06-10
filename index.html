@@ -1,0 +1,3318 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Compressing 3D models.">
+  <meta name="keywords" content="Squeeze3D, 3D Compression, 3D Generation, 3D Compression, Generative AI, Generative 3D, Generative Models">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>
+    Squeeze3D
+  </title>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3Q1BKNGWKT"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-3Q1BKNGWKT');
+  </script>
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./assets/css/bulma.min.css">
+  <link rel="stylesheet" href="./assets/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./assets/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./assets/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./assets/css/index.css">
+  <link rel="icon" href="./assets/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./assets/js/fontawesome.all.min.js"></script>
+  <script src="./assets/js/bulma-carousel.min.js"></script>
+  <script src="./assets/js/bulma-slider.min.js"></script>
+  
+  <!-- Three.js for 3D models - load before other scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/PLYLoader.min.js"></script>
+  
+  <!-- img-comparison-slider for comparing images -->
+  <script defer src="https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/index.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/styles.css" />
+  
+  <!-- Google Model Viewer for 3D models -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+  <script src="./assets/js/index.js"></script>
+  
+  <style>
+    /* Global font settings to match Nerfies */
+    body {
+      font-family: 'Google Sans', 'Noto Sans', sans-serif;
+    }
+    
+    .title, .subtitle {
+      font-family: 'Google Sans', 'Noto Sans', sans-serif !important;
+    }
+    
+    .author-block {
+      margin-right: 20px;
+    }
+    .custom-icon {
+      width: 1.5em;
+      height: 1.5em;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .icon-rocket {
+      font-size: 1.5em;
+    }
+    .squeeze3d-text {
+      font-family: 'Courier New', monospace;
+      text-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+      letter-spacing: 0.5px;
+    }
+    
+    /* Slider styles */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 1200px) {
+      .grid-container {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 480px) {
+      .grid-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    img-comparison-slider {
+      --divider-width: 2px;
+      --divider-color: white;
+      --divider-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+      --default-handle-opacity: 1;
+      --default-handle-width: 40px;
+      --default-handle-color: white;
+      margin-bottom: 20px;
+    }
+    
+    .image-label {
+      position: absolute;
+      background-color: rgba(0,0,0,0.5);
+      color: white;
+      padding: 4px 8px;
+      font-size: 12px;
+      z-index: 1;
+      top: 10px;
+      border-radius: 4px;
+    }
+    
+    .label-left {
+      left: 10px;
+    }
+    
+    .label-right {
+      right: 10px;
+    }
+
+    .row-title {
+      margin-top: 30px;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+    
+    /* 3D Model Viewer styles */
+    .model-container {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      margin-bottom: 40px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .model-slider-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .model-slider {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+    }
+    
+    .model-divider {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      cursor: ew-resize;
+      z-index: 10;
+    }
+    
+    .model-half {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    .model-left {
+      left: 0;
+      right: 50%;
+    }
+    
+    .model-right {
+      left: 50%;
+      right: 0;
+    }
+    
+    model-viewer {
+      width: 200%;
+      height: 100%;
+      background-color: #f5f5f5;
+      --poster-color: transparent;
+    }
+    
+    .model-right model-viewer {
+      margin-left: -100%;
+    }
+    
+    .model-label {
+      position: absolute;
+      background-color: rgba(0,0,0,0.5);
+      color: white;
+      padding: 4px 8px;
+      font-size: 12px;
+      z-index: 1;
+      top: 10px;
+      border-radius: 4px;
+    }
+    
+    /* Three.js viewer styles */
+    .threejs-container {
+      width: 100%;
+      height: 300px;
+      background-color: #f5f5f5;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 10px; /* Add margin to make space for the download button */
+    }
+    
+    .download-button {
+      display: block;
+      width: 100%;
+      padding: 12px 0;
+      background: linear-gradient(135deg, #3273dc 0%, #209cee 100%);
+      color: white;
+      text-align: center;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      border: none;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(50, 115, 220, 0.3);
+    }
+    
+    .download-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(50, 115, 220, 0.4);
+      color: white;
+    }
+    
+    /* Button hover effect with white outline */
+    .button.is-dark:hover {
+      outline: 2px solid white;
+      outline-offset: 2px;
+    }
+    
+    /* More specific hover effect for paper, arxiv, etc. buttons */
+    .link-block .button.is-dark:hover {
+      outline: none;
+      box-shadow: 0 0 4px 2px rgba(255, 255, 255, 0.3);
+    }
+    
+    /* Add rainbow border effect with no gap */
+    .link-block .button.is-dark {
+      position: relative;
+    }
+    
+    .link-block .button.is-dark:before {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      right: -3px;
+      bottom: -3px;
+      border-radius: 25px; /* Slightly larger to match thicker border */
+      background: linear-gradient(45deg, #ff0000, #ff8000, #ffff00, #00ff00, #0080ff, #8000ff, #ff0080);
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .link-block .button.is-dark:hover:before {
+      opacity: 1;
+    }
+    
+    /* Remove the previous animation */
+    @keyframes rainbow-outline {
+      0% { outline-color: #ff0000; }
+      16.6% { outline-color: #ff8000; }
+      33.3% { outline-color: #ffff00; }
+      50% { outline-color: #00ff00; }
+      66.6% { outline-color: #0080ff; }
+      83.3% { outline-color: #8000ff; }
+      100% { outline-color: #ff0000; }
+    }
+    
+    .threejs-label {
+      position: absolute;
+      background-color: rgba(0,0,0,0.5);
+      color: white;
+      padding: 4px 8px;
+      font-size: 12px;
+      z-index: 1;
+      top: 10px;
+      left: 10px;
+      border-radius: 4px;
+    }
+    
+    .loader {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top-color: #3273dc;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Radiance Field pagination styles */
+    .rf-pagination-container {
+      width: 100%;
+      margin-bottom: 2rem;
+    }
+    
+    .rf-page {
+      width: 100%;
+    }
+    
+    /* Paper preview section improvements */
+    .paper-preview-section {
+      background-color: #fafafa;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .paper-preview-section .links a {
+      transition: all 0.3s ease;
+    }
+    
+    .paper-preview-section .links a:hover {
+      color: #209cee !important;
+      transform: translateX(5px);
+    }
+  </style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">
+            <span class="main-title squeeze3d-text">Squeeze3D</span><br>
+            <span class="subtitle-text">Your 3D Generation Model is Secretly a Representation-Agnostic Extreme Neural Compressor</span>
+          </h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://rishitdagli.com/">Rishit Dagli</a></span>
+            <span class="author-block">
+              <a href="https://gavinguan95.github.io/">Yushi Guan</a></span>
+            <span class="author-block">
+              <a href="https://www.cs.toronto.edu/~sankeerth/">Sankeerth Durvasula</a></span>
+            <span class="author-block">
+              <a href="https://mofayezi.github.io/">Mohammadreza Mofayezi</a></span>
+            <span class="author-block">
+              <a href="https://www.cs.toronto.edu/~nandita/">Nandita Vijaykumar</a></span>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">University of Toronto</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://www.cs.toronto.edu/~rishit/projects/squeeze3d/squeeze3d.pdf" target="_blank"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" class="custom-icon">
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="#" target="_blank"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <img src="./assets/img/arxiv-logomark-small.svg" class="custom-icon">
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/Rishit-dagli/squeeze3d" target="_blank"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fab fa-github" style="font-size: 1.5em;"></i>
+                  </span>
+                  <span>Code</span>
+                </a>
+              </span>
+              <!-- Models, Datasets, Demo Link -->
+              <span class="link-block">
+                <a href="https://huggingface.co/rishitdagli/squeeze3d" target="_blank"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <img src="./assets/img/huggingface_logo-noborder.svg" class="custom-icon">
+                  </span>
+                  <span>Models</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://huggingface.co/collections/rishitdagli/squeeze3d-6845ab483c4e5ff2018e4196" target="_blank"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <img src="./assets/img/huggingface_logo-noborder.svg" class="custom-icon">
+                  </span>
+                  <span>Datasets</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="#" target="_blank"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <img src="./assets/img/huggingface_logo-noborder.svg" class="custom-icon">
+                  </span>
+                  <span>Demo (Coming Soon)</span>
+                </a>
+              </span>
+              <!-- Results Library Link -->
+              <!-- <span class="link-block">
+                <a href="https://www.cs.toronto.edu/~rishit/projects/squeeze3d/results_library.pdf" target="_blank"
+                class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" class="custom-icon">
+                  </span>
+                  <span>Results Library</span>
+                </a>
+              </span> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- TL;DR. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <div class="notification is-light" style="background-color: #f0f8ff; border-left: 4px solid #3273dc;">
+          <p style="font-size: 1.1rem; color: #363636;">
+            We propose Squeeze3D that learns to bridge the latent spaces of different models. This allows us to do extreme compression.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ TL;DR. -->
+    
+    <!-- Teaser. -->
+    <div class="columns is-centered has-text-centered" style="margin-top: 2rem;">
+      <div class="column is-four-fifths">
+        <figure class="image">
+          <img src="./assets/img/squeeze3d/teaser.png" alt="Squeeze3D teaser" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
+            <strong style="color: #363636;">Figure:</strong> We showcase extreme compression of 3D models while preserving perceptual quality. <strong>(Top)</strong> Our method compresses a diverse collection of 3D models in various formats: meshes, point clouds, and radiance fields. <strong>(Bottom)</strong> Detailed comparison between the original "Pikachu" model (6.11 MB) and the reconstruction after compression. The object was compressed to merely 0.003 MB.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+    <!--/ Teaser. -->
+    
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered" style="margin-top: 3rem;">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            We propose <span class="squeeze3d-text">Squeeze3D</span>, a novel framework that leverages implicit prior knowledge learnt by existing pre-trained 3D generative models to compress 3D data at extremely high compression ratios. Our approach bridges the latent spaces between a pre-trained encoder and a pre-trained generation model through trainable mapping networks. Any 3D model represented as a mesh, point cloud, or a radiance field is first encoded by the pre-trained encoder and then transformed (i.e. <em>compressed</em>) into a highly compact latent code. This latent code can effectively be used as an extremely compressed representation of the mesh or point cloud. A mapping network transforms the compressed latent code into the latent space of a powerful generative model, which is then conditioned to recreate the original 3D model (i.e. <em>decompression</em>). <span class="squeeze3d-text">Squeeze3D</span> is trained entirely on generated synthetic data and does not require any 3D datasets. The <span class="squeeze3d-text">Squeeze3D</span> architecture can be flexibly used with existing pre-trained 3D encoders and existing generative models. It can flexibly support different formats, including meshes, point clouds, and radiance fields. Our experiments demonstrate that <span class="squeeze3d-text">Squeeze3D</span> achieves compression ratios of up to 2187× for textured meshes, 55× for point clouds, and 619× for radiance fields while maintaining visual quality comparable to many existing methods. <span class="squeeze3d-text">Squeeze3D</span> only incurs a small compression and decompression latency since it does not involve training object-specific networks to compress an object.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+    
+    <!-- Key Contributions. -->
+    <div class="columns is-centered" style="margin-top: 2rem;">
+      <div class="column is-four-fifths">
+        <div class="notification is-light" style="background-color: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem;">
+          <h3 class="title is-5" style="margin-bottom: 1rem;">
+            <span style="margin-right: 0.5rem;">🚀</span>Key Contributions
+          </h3>
+          <div class="content">
+            <p style="margin-bottom: 0.8rem;">
+              <span style="font-size: 1.2rem; margin-right: 0.5rem;">🎯</span>
+              To the best of our knowledge, this is the first framework that leverages <em>pre-existing pre-trained</em> generative models to enable extreme compression of 3D data.
+            </p>
+            <p style="margin-bottom: 0.8rem;">
+              <span style="font-size: 1.2rem; margin-right: 0.5rem;">🔗</span>
+              We demonstrate the feasibility of establishing correspondences between disparate latent manifolds originating from neural architectures with fundamentally different structures, optimization objectives, and training distributions.
+            </p>
+            <p style="margin-bottom: 0;">
+              <span style="font-size: 1.2rem; margin-right: 0.5rem;">📊</span>
+              We evaluate <span class="squeeze3d-text">Squeeze3D</span> for mesh, point cloud, and radiance field compression and demonstrate that generative models are a promising approach for extreme compression of 3D models. <span class="squeeze3d-text">Squeeze3D</span> can be flexibly extended to different encoders, generative models, and 3D formats.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+    <!--/ Key Contributions. -->
+    
+    <!-- Squeeze3D Method. -->
+    <section class="hero is-light is-small">
+      <div class="hero-body has-text-centered">
+        <h1 class="title is-1 mathvista_other">
+          <span class="mathvista_other" style="vertical-align: middle">Squeeze3D</span>
+        </h1>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: 0;">
+    <div class="container is-max-desktop content">
+    <div class="columns is-centered" style="margin-top: 0rem;">
+      <div class="column is-four-fifths">        
+        <!-- Method Overview -->
+        <div class="content has-text-justified" style="margin-bottom: 2rem;">
+          <p>
+            <span class="squeeze3d-text">Squeeze3D</span> achieves extreme compression by bridging the latent spaces of pre-trained 3D encoders and generators through lightweight mapping networks. Rather than training specialized compression models for each object, we leverage the implicit knowledge already learned by existing 3D generative models.
+          </p>
+        </div>
+        
+        <!-- Pipeline Figure -->
+        <figure class="image" style="margin-bottom: 2rem;">
+          <img src="./assets/img/squeeze3d/pipeline.png" alt="Squeeze3D pipeline" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
+            <strong style="color: #363636;">Figure:</strong> Overview of the <span class="squeeze3d-text">Squeeze3D</span> pipeline. During compression, any 3D geometry (mesh, point cloud, or radiance field) is encoded and transformed into a highly compact representation. During decompression, this representation is mapped to the generator's latent space to reconstruct the original geometry.
+          </figcaption>
+        </figure>
+        
+        <!-- Key Components -->
+        <div class="content has-text-justified" style="margin-bottom: 2rem;">
+          <h4 class="title is-5">Key Components</h4>
+          <p>
+            The architecture consists of four main components:
+          </p>
+          <ul>
+            <li><strong>Pre-trained 3D Encoder (E):</strong> Converts 3D geometries into latent representations z<sub>E</sub></li>
+            <li><strong>Forward Mapping Network (F<sup>E</sup><sub>θ</sub>):</strong> Transforms encoder latents into compressed representation z<sub>comp</sub></li>
+            <li><strong>Reverse Mapping Network (F<sup>D</sup><sub>θ</sub>):</strong> Maps compressed representation to generator latent space z<sub>G</sub></li>
+            <li><strong>Pre-trained 3D Generator (G):</strong> Reconstructs 3D geometry from latent codes</li>
+          </ul>
+        </div>
+        
+        <!-- Architecture Figure -->
+        <!-- <figure class="image" style="margin-bottom: 2rem;">
+          <img src="./assets/img/squeeze3d/arch.png" alt="Mapping network architectures" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
+            <strong style="color: #363636;">Figure:</strong> Architecture of our mapping networks.
+          </figcaption>
+        </figure> -->
+        
+        <!-- Training Process -->
+        <div class="content has-text-justified" style="margin-bottom: 2rem;">
+          <h4 class="title is-5">Training Process</h4>
+          <p>
+            Since we cannot directly obtain paired data between encoder and generator latent spaces, we employ a synthetic data generation approach:
+          </p>
+        </div>
+        
+        <!-- Training Figure -->
+        <figure class="image" style="margin-bottom: 2rem;">
+          <img src="./assets/img/squeeze3d/training.png" alt="Training process" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
+            <strong style="color: #363636;">Figure:</strong> Training <span class="squeeze3d-text">Squeeze3D</span>. (a) We generate synthetic training data by sampling from the generator and encoding the outputs. (b) The mapping networks are trained with a combination of reconstruction loss and our novel Gram loss that ensures efficient use of the compressed representation dimensions.
+          </figcaption>
+        </figure>
+        
+        <!-- Key Insights -->
+        <div class="content has-text-justified">
+          <ul>
+            <li><strong>Gram Loss:</strong> We discovered that standard training leads to redundant latent representations. Our Gram loss enforces orthogonality in the compressed space, ensuring all dimensions are effectively utilized.</li>
+            <li><strong>Format Agnostic:</strong> By using pre-trained encoders, <span class="squeeze3d-text">Squeeze3D</span> can compress any 3D format without format-specific training.</li>
+            <li><strong>Extreme Compression:</strong> The compressed representation z<sub>comp</sub> can be as small as 128 dimensions, achieving compression ratios up to 2187×.</li>
+          </ul>
+          <p style="margin-top: 1rem;">
+            The entire compression and decompression process is fast, requiring only forward passes through small neural networks, making it practical for real-world applications.
+          </p>
+        </div>
+      </div>
+    </div>
+    </div>
+    </div>
+  </div>
+</section>
+<!--/ Squeeze3D Method. -->
+
+<section class="hero is-light is-small">
+  <div class="hero-body has-text-centered">
+    <h1 class="title is-1 mathvista_other">
+      <span class="mathvista_other" style="vertical-align: middle">Main Results</span>
+    </h1>
+  </div>
+</section>
+<br>
+
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Comparison with Previous Works</h2>
+      </div>
+    </div>
+
+    <!-- Mesh Comparisons -->
+    <div class="columns is-centered" style="margin-top: 2rem;">
+      <div class="column is-four-fifths">
+        <figure class="image" style="margin-bottom: 1rem;">
+          <img src="./assets/img/squeeze3d/mesh_comparisions.png" alt="Mesh compression comparison" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
+            <strong style="color: #363636;">Figure:</strong> Qualitative mesh compression results. We compare Squeeze3D to state-of-the-art methods. Our approach maintains visually important geometric details.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- Point Cloud Comparisons -->
+    <div class="columns is-centered" style="margin-top: 1.5rem;">
+      <div class="column is-four-fifths">
+        <figure class="image" style="margin-bottom: 1rem;">
+          <img src="./assets/img/squeeze3d/pc_comparisions.png" alt="Point cloud compression comparison" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
+            <strong style="color: #363636;">Figure:</strong> Qualitative point cloud compression results. We show qualitative results comparing Squeeze3D to state-of-the-art methods. Our approach achieves significantly higher compression ratios while maintaining perceptually important geometric details.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- Radiance Field Comparisons -->
+    <div class="columns is-centered" style="margin-top: 1.5rem;">
+      <div class="column is-four-fifths">
+        <figure class="image" style="margin-bottom: 1rem;">
+          <img src="./assets/img/squeeze3d/rf_comparisions.png" alt="Radiance field compression comparison" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
+            <strong style="color: #363636;">Figure:</strong> Qualitative radiance field compression results. We show qualitative results comparing Squeeze3D to state-of-the-art methods. Our approach achieves a significantly higher compression ratio while maintaining visually important geometric details.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Mesh Results Section -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Mesh Results</h2>
+        <div class="content has-text-justified">
+          <p>
+            Comparisons between ground truth 3D meshes and those generated by <span class="squeeze3d-text">Squeeze3D</span>. 
+            Interact with each 3D model by dragging to rotate, scrolling to zoom.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Simple side-by-side comparisons -->
+    <!-- Original models 1-5 - Hidden -->
+    <div style="display: none;">
+      <!-- Mesh Comparison 1 -->
+      <div class="columns is-centered mb-5">
+        <div class="column">
+          <div id="gt-model-1" class="threejs-container">
+            <div class="threejs-label">Ground Truth</div>
+            <div class="loader">
+              <div class="spinner"></div>
+              <p>Loading model...</p>
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div id="gen-model-1" class="threejs-container">
+            <div class="threejs-label">Squeeze3D</div>
+            <div class="loader">
+              <div class="spinner"></div>
+              <p>Loading model...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mesh Comparison 2 -->
+      <div class="columns is-centered mb-5">
+        <div class="column">
+          <div id="gt-model-2" class="threejs-container">
+            <div class="threejs-label">Ground Truth</div>
+            <div class="loader">
+              <div class="spinner"></div>
+              <p>Loading model...</p>
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div id="gen-model-2" class="threejs-container">
+            <div class="threejs-label">Squeeze3D</div>
+            <div class="loader">
+              <div class="spinner"></div>
+              <p>Loading model...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mesh Comparison 3 -->
+      <div class="columns is-centered mb-5">
+        <div class="column">
+          <div id="gt-model-3" class="threejs-container">
+            <div class="threejs-label">Ground Truth</div>
+            <div class="loader">
+              <div class="spinner"></div>
+              <p>Loading model...</p>
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div id="gen-model-3" class="threejs-container">
+            <div class="threejs-label">Squeeze3D</div>
+            <div class="loader">
+              <div class="spinner"></div>
+              <p>Loading model...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mesh Comparison 4 -->
+      <div class="columns is-centered mb-5">
+        <div class="column">
+          <div id="gt-model-4" class="threejs-container">
+            <div class="threejs-label">Ground Truth</div>
+            <div class="loader">
+              <div class="spinner"></div>
+              <p>Loading model...</p>
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div id="gen-model-4" class="threejs-container">
+            <div class="threejs-label">Squeeze3D</div>
+            <div class="loader">
+              <div class="spinner"></div>
+              <p>Loading model...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mesh Comparison 5 -->
+      <div class="columns is-centered mb-5">
+        <div class="column">
+          <div id="gt-model-5" class="threejs-container">
+            <div class="threejs-label">Ground Truth</div>
+            <div class="loader">
+              <div class="spinner"></div>
+              <p>Loading model...</p>
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div id="gen-model-5" class="threejs-container">
+            <div class="threejs-label">Squeeze3D</div>
+            <div class="loader">
+              <div class="spinner"></div>
+              <p>Loading model...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Paginated Models 50-109 reorganized into 20 pages -->
+    
+    <!-- Pagination container -->
+    <div class="pagination-container" id="model-pages-container">
+      <!-- Pages will be dynamically generated by JavaScript -->
+          </div>
+      
+      <!-- Pagination Controls -->
+      <div class="pagination is-centered mt-5 mb-5">
+        <a class="pagination-previous" id="prev-page-btn" disabled>Previous</a>
+        <a class="pagination-next" id="next-page-btn">Next</a>
+        <ul class="pagination-list" id="pagination-list">
+          <li><a class="pagination-link is-current" aria-label="Page 1" aria-current="page">1</a></li>
+          <li><a class="pagination-link" aria-label="Goto page 2">2</a></li>
+          <li><a class="pagination-link" aria-label="Goto page 3">3</a></li>
+          <li><a class="pagination-link" aria-label="Goto page 4">4</a></li>
+          <li><a class="pagination-link" aria-label="Goto page 5">5</a></li>
+        <li><span class="pagination-ellipsis">&hellip;</span></li>
+          <li><a class="pagination-link" aria-label="Goto page 10">10</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 15">15</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 20">20</a></li>
+        </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Radiance Field Results Section -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Radiance Field Results</h2>
+        <div class="content has-text-justified">
+          <p>
+            Comparisons between ground truth radiance fields (left) and those generated by <span class="squeeze3d-text">Squeeze3D</span> (right). These radiance fields are randomly chosen and shown from a random view from the test set. Drag the slider to compare results.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Pagination container for Radiance Fields -->
+    <div class="rf-pagination-container">
+      <!-- Page 1 (RF 1-10) -->
+      <div class="rf-page" id="rf-page-1">
+        <!-- Row 1 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000001/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000001/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000002/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000002/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000003/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000003/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000004/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000004/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000005/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000005/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+        
+        <!-- Row 2 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000006/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000006/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000007/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000007/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000008/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000008/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000009/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000009/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000010/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000010/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Page 2 (RF 11-20) -->
+      <div class="rf-page" id="rf-page-2" style="display: none;">
+        <!-- Row 3 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000011/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000011/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000012/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000012/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000013/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000013/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000014/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000014/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000015/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000015/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+        
+        <!-- Row 4 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000016/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000016/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000017/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000017/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000018/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000018/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000019/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000019/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000020/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000020/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Page 3 (RF 21-30) -->
+      <div class="rf-page" id="rf-page-3" style="display: none;">
+        <!-- Row 5 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000021/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000021/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000022/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000022/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000023/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000023/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000024/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000024/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000025/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000025/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+        
+        <!-- Row 6 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000026/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000026/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000027/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000027/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000028/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000028/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000029/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000029/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000030/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000030/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Page 4 (RF 31-40) -->
+      <div class="rf-page" id="rf-page-4" style="display: none;">
+        <!-- Row 7 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000031/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000031/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000032/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000032/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000033/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000033/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000034/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000034/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000035/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000035/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+        
+        <!-- Row 8 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000036/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000036/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000037/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000037/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000038/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000038/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000039/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000039/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000040/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000040/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Page 5 (RF 41-50) -->
+      <div class="rf-page" id="rf-page-5" style="display: none;">
+        <!-- Row 9 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000041/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000041/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000042/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000042/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000043/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000043/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000044/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000044/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000045/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000045/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+        
+        <!-- Row 10 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000046/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000046/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000047/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000047/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000048/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000048/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000049/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000049/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000050/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000050/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Page 6 (RF 51-60) -->
+      <div class="rf-page" id="rf-page-6" style="display: none;">
+        <!-- Row 11 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000051/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000051/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000052/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000052/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000053/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000053/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000054/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000054/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000055/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000055/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+        
+        <!-- Row 12 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000056/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000056/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000057/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000057/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000058/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000058/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000059/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000059/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000060/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000060/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Page 7 (RF 61-70) -->
+      <div class="rf-page" id="rf-page-7" style="display: none;">
+        <!-- Row 13 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000061/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000061/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000062/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000062/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000063/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000063/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000064/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000064/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000065/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000065/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+        
+        <!-- Row 14 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000066/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000066/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000067/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000067/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000068/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000068/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000069/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000069/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000070/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000070/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Page 8 (RF 71-80) -->
+      <div class="rf-page" id="rf-page-8" style="display: none;">
+        <!-- Row 15 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000071/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000071/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000072/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000072/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000073/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000073/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000074/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000074/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000075/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000075/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+        
+        <!-- Row 16 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000076/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000076/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000077/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000077/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000078/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000078/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000079/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000079/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000080/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000080/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Page 9 (RF 81-90) -->
+      <div class="rf-page" id="rf-page-9" style="display: none;">
+        <!-- Row 17 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000081/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000081/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000082/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000082/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000083/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000083/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000084/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000084/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000085/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000085/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+        
+        <!-- Row 18 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000086/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000086/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000087/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000087/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000088/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000088/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000089/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000089/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000090/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000090/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Page 10 (RF 91-100) -->
+      <div class="rf-page" id="rf-page-10" style="display: none;">
+        <!-- Row 19 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000091/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000091/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000092/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000092/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000093/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000093/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000094/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000094/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000095/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000095/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+        
+        <!-- Row 20 -->
+        <div class="grid-container">
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000096/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000096/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000097/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000097/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000098/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000098/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000099/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000099/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+          
+          <div style="position: relative;">
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/000100/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/000100/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Pagination Controls for Radiance Fields -->
+      <div class="pagination is-centered mt-5 mb-5" id="rf-pagination">
+        <a class="pagination-previous" id="rf-prev-page-btn" disabled>Previous</a>
+        <a class="pagination-next" id="rf-next-page-btn">Next</a>
+        <ul class="pagination-list" id="rf-pagination-list">
+          <li><a class="pagination-link is-current" aria-label="Page 1" aria-current="page">1</a></li>
+          <li><a class="pagination-link" aria-label="Goto page 2">2</a></li>
+          <li><a class="pagination-link" aria-label="Goto page 3">3</a></li>
+          <li><a class="pagination-link" aria-label="Goto page 4">4</a></li>
+          <li><a class="pagination-link" aria-label="Goto page 5">5</a></li>
+          <li><a class="pagination-link" aria-label="Goto page 6">6</a></li>
+          <li><a class="pagination-link" aria-label="Goto page 7">7</a></li>
+          <li><a class="pagination-link" aria-label="Goto page 8">8</a></li>
+          <li><a class="pagination-link" aria-label="Goto page 9">9</a></li>
+          <li><a class="pagination-link" aria-label="Goto page 10">10</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Point Cloud Results Section -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Point Cloud Results</h2>
+        <div class="content has-text-justified">
+          <p>
+            Comparisons between ground truth point clouds and those generated by <span class="squeeze3d-text">Squeeze3D</span>. 
+            Interact with each point cloud by dragging to rotate, scrolling to zoom.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Pagination container -->
+    <div class="pagination-container" id="pc-pages-container">
+      <!-- Pages will be dynamically generated by JavaScript -->
+    </div>
+      
+    <!-- Pagination Controls -->
+    <div class="pagination is-centered mt-5 mb-5">
+      <a class="pagination-previous" id="pc-prev-page-btn" disabled>Previous</a>
+      <a class="pagination-next" id="pc-next-page-btn">Next</a>
+      <ul class="pagination-list" id="pc-pagination-list">
+        <li><a class="pagination-link is-current" aria-label="Page 1" aria-current="page">1</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 2">2</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 3">3</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 4">4</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 5">5</a></li>
+        <li><span class="pagination-ellipsis">&hellip;</span></li>
+        <li><a class="pagination-link" aria-label="Goto page 10">10</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 15">15</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 20">20</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Dynamic mesh model page generation
+  document.addEventListener('DOMContentLoaded', function() {
+    // Configuration for model pages
+    const startModel = 50;
+    const modelsPerPage = 3;
+    const totalPages = 20;
+    const endModel = 109;
+    
+    // State for pagination
+    const state = {
+      currentPage: 1,
+      totalPages: totalPages
+    };
+    
+    // Track which models have been initialized
+    const initializedModels = new Set();
+    // Store all renderer instances to manage them
+    const renderers = [];
+    // Maximum number of active renderers to prevent context loss
+    const MAX_ACTIVE_RENDERERS = 10;
+    
+    // DOM references
+    const prevBtn = document.getElementById('prev-page-btn');
+    const nextBtn = document.getElementById('next-page-btn');
+    const paginationList = document.getElementById('pagination-list');
+    
+    // Get container for model pages
+    const modelPagesContainer = document.getElementById('model-pages-container');
+    if (!modelPagesContainer) {
+      console.error("Container for model pages not found!");
+      return;
+    }
+    
+    // Clear any existing content
+    modelPagesContainer.innerHTML = '';
+    
+    // Generate HTML for all pages
+    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+      // Calculate model range for this page
+      let pageStartIndex = (pageNum - 1) * modelsPerPage;
+      let pageStart = startModel + pageStartIndex;
+      let pageEnd = Math.min(pageStart + modelsPerPage - 1, endModel);
+      
+      // Create page div
+      const pageDiv = document.createElement('div');
+      pageDiv.className = 'model-page';
+      pageDiv.id = `model-page-${pageNum}`;
+      if (pageNum > 1) {
+        pageDiv.style.display = 'none';
+      }
+      
+      // Create Squeeze3D row (top row)
+      const squeeze3dRow = document.createElement('div');
+      squeeze3dRow.className = 'columns mb-4';
+      squeeze3dRow.innerHTML = '<div class="column is-12"></div>';
+      
+      // Create generated models row
+      const genModelsRow = document.createElement('div');
+      genModelsRow.className = 'columns is-multiline mb-5';
+      
+      // Create Ground Truth row (bottom row)
+      const groundTruthRow = document.createElement('div');
+      groundTruthRow.className = 'columns mb-4';
+      groundTruthRow.innerHTML = '<div class="column is-12"></div>';
+      
+      // Create ground truth models row
+      const gtModelsRow = document.createElement('div');
+      gtModelsRow.className = 'columns is-multiline mb-5';
+      
+      // Add models for this page
+      for (let modelNum = pageStart; modelNum <= pageEnd; modelNum++) {
+        // Generated model (for top row)
+        const genColumn = document.createElement('div');
+        genColumn.className = 'column is-4';
+        genColumn.innerHTML = `
+          <div id="gen-model-${modelNum}" class="threejs-container">
+            <div class="threejs-label">Squeeze3D</div>
+            <div class="loader">
+              <div class="spinner"></div>
+              <p>Loading model...</p>
+            </div>
+          </div>
+          <a href="https://rishit-dagli.github.io/squeeze3d-web-results/gen_meshes/${modelNum}/mesh.obj" class="download-button" download>Download Mesh</a>
+        `;
+        genModelsRow.appendChild(genColumn);
+        
+        // Ground Truth model (for bottom row)
+        const gtColumn = document.createElement('div');
+        gtColumn.className = 'column is-4';
+        gtColumn.innerHTML = `
+          <div id="gt-model-${modelNum}" class="threejs-container">
+            <div class="threejs-label">Ground Truth</div>
+            <div class="loader">
+              <div class="spinner"></div>
+              <p>Loading model...</p>
+            </div>
+          </div>
+          <a href="https://rishit-dagli.github.io/squeeze3d-web-results/gt_meshes/${modelNum}/mesh.obj" class="download-button" download>Download Mesh</a>
+        `;
+        gtModelsRow.appendChild(gtColumn);
+      }
+      
+      // Add rows to page
+      pageDiv.appendChild(squeeze3dRow);
+      pageDiv.appendChild(genModelsRow);
+      pageDiv.appendChild(groundTruthRow);
+      pageDiv.appendChild(gtModelsRow);
+      
+      // Add page to container
+      modelPagesContainer.appendChild(pageDiv);
+    }
+    
+    // Initialize pagination and show first page
+    initPagination();
+    showPage(1);
+    
+    // Initialize the pagination system
+    function initPagination() {
+      // Create click handlers for pagination controls
+      prevBtn.addEventListener('click', function() {
+        if (state.currentPage > 1) {
+          showPage(state.currentPage - 1);
+        }
+      });
+      
+      nextBtn.addEventListener('click', function() {
+        if (state.currentPage < state.totalPages) {
+          showPage(state.currentPage + 1);
+        }
+      });
+      
+      // Setup pagination links
+      const pageLinks = paginationList.querySelectorAll('.pagination-link');
+      pageLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          const page = parseInt(this.textContent);
+          showPage(page);
+        });
+      });
+    }
+    
+    // Show a specific page of models
+    function showPage(pageNum) {
+      // Update state
+      state.currentPage = pageNum;
+      
+      // Hide all pages
+      const pages = document.querySelectorAll('.model-page');
+      pages.forEach(page => {
+        page.style.display = 'none';
+      });
+      
+      // Show the current page
+      const currentPageEl = document.getElementById(`model-page-${pageNum}`);
+      
+      if (currentPageEl) {
+        currentPageEl.style.display = 'block';
+      } else {
+        console.log(`Page ${pageNum} does not exist`);
+      }
+      
+      // Update pagination UI
+      updatePaginationUI();
+      
+      // Initialize any visible models that haven't been loaded yet
+      initVisibleModels();
+    }
+    
+    // Update the pagination UI based on current state
+    function updatePaginationUI() {
+      // Update previous/next buttons
+      prevBtn.disabled = state.currentPage === 1;
+      nextBtn.disabled = state.currentPage === state.totalPages;
+      
+      // Update pagination links
+      const pageLinks = paginationList.querySelectorAll('.pagination-link');
+      pageLinks.forEach(link => {
+        const page = parseInt(link.textContent);
+        if (page === state.currentPage) {
+          link.classList.add('is-current');
+          link.setAttribute('aria-current', 'page');
+        } else {
+          link.classList.remove('is-current');
+          link.removeAttribute('aria-current');
+        }
+      });
+    }
+    
+    // Initialize any visible models that haven't been loaded yet
+    function initVisibleModels() {
+      // Use intersection observer to detect visible models
+      const currentPageEl = document.getElementById(`model-page-${state.currentPage}`);
+      if (!currentPageEl) return;
+      
+      const modelContainers = currentPageEl.querySelectorAll('.threejs-container');
+      
+      // Initialize each visible model container
+      modelContainers.forEach(container => {
+        if (container && !initializedModels.has(container.id)) {
+          const modelId = container.id;
+          
+          // Extract model number and type
+          const match = modelId.match(/^(gt|gen)-model-(\d+)$/);
+          if (match) {
+            const modelType = match[1]; // 'gt' or 'gen'
+            const modelNum = match[2];  // model number
+            
+            // Set the URL based on type
+            const baseUrl = modelType === 'gt' ? 
+              `https://rishit-dagli.github.io/squeeze3d-web-results/gt_meshes/${modelNum}/` : 
+              `https://rishit-dagli.github.io/squeeze3d-web-results/gen_meshes/${modelNum}/`;
+            
+            // Initialize the model
+            initThreeJsScene(modelId, `${baseUrl}mesh.obj`, `${baseUrl}mesh.mtl`, `${baseUrl}mesh.png`);
+            initializedModels.add(modelId);
+          }
+        }
+      });
+    }
+    
+    function initThreeJsScene(elementId, objUrl, mtlUrl, textureUrl) {
+      const container = document.getElementById(elementId);
+      if (!container) return; // Skip if container doesn't exist
+      const loader = container.querySelector('.loader');
+      
+      // Manage active renderers - dispose oldest if we hit the limit
+      if (renderers.length >= MAX_ACTIVE_RENDERERS) {
+        const oldestRenderer = renderers.shift();
+        if (oldestRenderer && oldestRenderer.renderer) {
+          // Clean up associated resources
+          if (oldestRenderer.controls) oldestRenderer.controls.dispose();
+          if (oldestRenderer.scene) {
+            oldestRenderer.scene.traverse(object => {
+              if (object.geometry) object.geometry.dispose();
+              if (object.material) {
+                if (Array.isArray(object.material)) {
+                  object.material.forEach(material => material.dispose());
+                } else {
+                  object.material.dispose();
+                }
+              }
+            });
+          }
+          oldestRenderer.renderer.dispose();
+          // Mark loader as visible again
+          if (oldestRenderer.container) {
+            const oldLoader = oldestRenderer.container.querySelector('.loader');
+            if (oldLoader) oldLoader.style.display = '';
+            oldLoader.innerHTML = '<div class="spinner"></div><p>Click to load model</p>';
+            
+            // Make it reloadable on click
+            oldestRenderer.container.addEventListener('click', function oneTimeClick() {
+              // Remove this event listener to avoid duplicate initialization
+              oldestRenderer.container.removeEventListener('click', oneTimeClick);
+              // Re-initialize this model
+              initThreeJsScene(oldestRenderer.container.id, 
+                oldestRenderer.objUrl, 
+                oldestRenderer.mtlUrl, 
+                oldestRenderer.textureUrl);
+            });
+          }
+        }
+      }
+      
+      // Create scene
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xf5f5f5);
+      
+      // Create camera
+      const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+      camera.position.z = 5;
+      
+      // Create renderer with context lost handling
+      const renderer = new THREE.WebGLRenderer({ 
+        antialias: true,
+        powerPreference: 'default', // Use 'low-power' for mobile
+        preserveDrawingBuffer: false
+      });
+      
+      // Handle context loss
+      renderer.domElement.addEventListener('webglcontextlost', function(event) {
+        event.preventDefault();
+        console.warn('WebGL context lost for', elementId);
+        // Update the loader to indicate the issue
+        if (loader) {
+          loader.style.display = '';
+          loader.innerHTML = '<p>Renderer lost - click to reload</p>';
+        }
+        
+        // Set up click to reload
+        container.addEventListener('click', function reloadHandler() {
+          container.removeEventListener('click', reloadHandler);
+          // Remove from initialized models so it can be reinitialized
+          initializedModels.delete(elementId);
+          
+          // Clear container
+          while (container.firstChild) {
+            if (container.firstChild.className === 'threejs-label') {
+              // Keep the label
+              container.firstChild = container.firstChild.nextSibling;
+            } else {
+              container.removeChild(container.firstChild);
+            }
+          }
+          
+          // Re-add loader
+          const newLoader = document.createElement('div');
+          newLoader.className = 'loader';
+          newLoader.innerHTML = '<div class="spinner"></div><p>Loading model...</p>';
+          container.appendChild(newLoader);
+          
+          // Reinitialize
+          setTimeout(() => {
+            initThreeJsScene(elementId, objUrl, mtlUrl, textureUrl);
+          }, 500);
+        });
+      });
+      
+      // Handle context restoration
+      renderer.domElement.addEventListener('webglcontextrestored', function() {
+        console.log('WebGL context restored for', elementId);
+        // Re-render the scene
+        if (scene && camera) {
+          renderer.render(scene, camera);
+        }
+      });
+      
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(renderer.domElement);
+      
+      // Add lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+      
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      directionalLight.position.set(1, 1, 1);
+      scene.add(directionalLight);
+      
+      // Add orbit controls
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.25;
+      controls.screenSpacePanning = false;
+      controls.maxPolarAngle = Math.PI / 2;
+      
+      // Set up auto-rotation
+      const rotationSpeed = 0.005;
+      let autoRotate = true;
+      let modelObject = null;
+      
+      // Toggle auto-rotation on click
+      container.addEventListener('click', function() {
+        autoRotate = !autoRotate;
+      });
+      
+      // Keep track of renderer instance
+      renderers.push({
+        renderer: renderer,
+        container: container,
+        controls: controls,
+        scene: scene,
+        camera: camera,
+        objUrl: objUrl,
+        mtlUrl: mtlUrl,
+        textureUrl: textureUrl
+      });
+      
+      // Load textures and materials
+      const textureLoader = new THREE.TextureLoader();
+      const mtlLoader = new THREE.MTLLoader();
+      
+      // Load OBJ file
+      const objLoader = new THREE.OBJLoader();
+      
+      // First try to load MTL file
+      mtlLoader.load(mtlUrl, function(materials) {
+        materials.preload();
+        objLoader.setMaterials(materials);
+        loadObjWithMaterials();
+      }, undefined, function() {
+        // MTL loading failed, try with texture directly
+        loadObjWithTexture();
+      });
+      
+      function loadObjWithMaterials() {
+        objLoader.load(objUrl, function(object) {
+          // Success - add the object to the scene
+          scene.add(object);
+          modelObject = object;
+          
+          // Center the object
+          const box = new THREE.Box3().setFromObject(object);
+          const center = box.getCenter(new THREE.Vector3());
+          object.position.sub(center);
+          
+          // Fix orientation - rotate model to correct orientation
+          object.rotation.x = -Math.PI / 2; // Rotate 90 degrees around X-axis
+          
+          // Hide the loader
+          if (loader) loader.style.display = 'none';
+          
+          // Start animation
+          animate();
+        }, function(xhr) {
+          // Progress
+        }, function(error) {
+          console.error('Error loading OBJ:', error);
+          // Error - try loading with texture directly
+          loadObjWithTexture();
+        });
+      }
+      
+      function loadObjWithTexture() {
+        // Load texture
+        const texture = textureLoader.load(textureUrl);
+        
+        // Load OBJ with default material
+        objLoader.load(objUrl, function(object) {
+          // Apply texture to all materials
+          object.traverse(function(child) {
+            if (child instanceof THREE.Mesh) {
+              child.material = new THREE.MeshPhongMaterial({ map: texture });
+            }
+          });
+          
+          // Add to scene
+          scene.add(object);
+          modelObject = object;
+          
+          // Center the object
+          const box = new THREE.Box3().setFromObject(object);
+          const center = box.getCenter(new THREE.Vector3());
+          object.position.sub(center);
+          
+          // Fix orientation - rotate model to correct orientation
+          object.rotation.x = -Math.PI / 2; // Rotate 90 degrees around X-axis
+          
+          // Hide the loader
+          if (loader) loader.style.display = 'none';
+          
+          // Start animation
+          animate();
+        }, function(xhr) {
+          // Progress
+        }, function(error) {
+          console.error('Error loading with texture:', error);
+          // Error - display error message
+          if (loader) {
+            loader.innerHTML = '<p>Failed to load 3D model</p>';
+          }
+        });
+      }
+      
+      // Handle window resize
+      const resizeListener = function() {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+      };
+      window.addEventListener('resize', resizeListener);
+      
+      // Variable to store animation frame ID
+      let animationFrameId;
+      
+      // Animation loop with auto-rotation
+      function animate() {
+        animationFrameId = requestAnimationFrame(animate);
+        
+        // Try-catch to handle potential WebGL context loss
+        try {
+          // Apply auto-rotation if enabled and model is loaded
+          if (autoRotate && modelObject) {
+            modelObject.rotation.z += rotationSpeed; // Changed from Y to Z to match the rotated model
+          }
+          
+          controls.update();
+          renderer.render(scene, camera);
+        } catch (e) {
+          console.error('Animation error:', e);
+          cancelAnimationFrame(animationFrameId);
+          
+          // Show reload option if context is lost
+          if (e.message.includes('WebGL') || e.message.includes('context')) {
+            if (loader) {
+              loader.style.display = '';
+              loader.innerHTML = '<p>Renderer error - click to reload</p>';
+            }
+          }
+        }
+      }
+      
+      // Add clean-up function for when model is off-screen
+      return function cleanup() {
+        cancelAnimationFrame(animationFrameId);
+        window.removeEventListener('resize', resizeListener);
+        controls.dispose();
+        renderer.dispose();
+        
+        // Clean up geometries and materials to prevent memory leaks
+        scene.traverse(object => {
+          if (object.geometry) object.geometry.dispose();
+          if (object.material) {
+            if (Array.isArray(object.material)) {
+              object.material.forEach(material => material.dispose());
+            } else {
+              object.material.dispose();
+            }
+          }
+        });
+      };
+    }
+  });
+
+  // Dynamic radiance field page generation
+  document.addEventListener('DOMContentLoaded', function() {
+    // Configuration for radiance field pages
+    const startRF = 1;
+    const rfPerPage = 10;
+    const totalRFPages = 10; // 10 pages for 100 radiance fields
+    const endRF = 100;
+    
+    // State for pagination
+    const rfState = {
+      currentPage: 1,
+      totalPages: totalRFPages
+    };
+    
+    // DOM references for RF pagination
+    const rfPrevBtn = document.getElementById('rf-prev-page-btn');
+    const rfNextBtn = document.getElementById('rf-next-page-btn');
+    const rfPaginationList = document.getElementById('rf-pagination-list');
+    
+    // Get container for RF pages
+    const rfPaginationContainer = document.querySelector('.rf-pagination-container');
+    if (!rfPaginationContainer) {
+      console.error("Container for radiance field pages not found!");
+      return;
+    }
+    
+    // Clear any existing content
+    rfPaginationContainer.innerHTML = '';
+    
+    // Generate HTML for all RF pages
+    for (let pageNum = 1; pageNum <= totalRFPages; pageNum++) {
+      // Calculate RF range for this page
+      let pageStartIndex = (pageNum - 1) * rfPerPage;
+      let pageStart = startRF + pageStartIndex;
+      let pageEnd = Math.min(pageStart + rfPerPage - 1, endRF);
+      
+      // Create page div
+      const pageDiv = document.createElement('div');
+      pageDiv.className = 'rf-page';
+      pageDiv.id = `rf-page-${pageNum}`;
+      if (pageNum > 1) {
+        pageDiv.style.display = 'none';
+      }
+      
+      // Create rows for this page (2 rows of 5 items each)
+      for (let rowNum = 0; rowNum < 2; rowNum++) {
+        const gridContainer = document.createElement('div');
+        gridContainer.className = 'grid-container';
+        
+        // Calculate RF numbers for this row
+        const rowStart = pageStart + (rowNum * 5);
+        const rowEnd = Math.min(rowStart + 4, pageEnd);
+        
+        // Add RF items for this row
+        for (let rfNum = rowStart; rfNum <= rowEnd; rfNum++) {
+          // Format the RF number with leading zeros (e.g., 001, 012)
+          const paddedNum = rfNum.toString().padStart(6, '0');
+          
+          const rfDiv = document.createElement('div');
+          rfDiv.style.position = 'relative';
+          rfDiv.innerHTML = `
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/rf_gt/${paddedNum}/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_rf/${paddedNum}/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          `;
+          gridContainer.appendChild(rfDiv);
+        }
+        
+        pageDiv.appendChild(gridContainer);
+      }
+      
+      // Add page to container
+      rfPaginationContainer.appendChild(pageDiv);
+    }
+    
+    // Add pagination controls
+    const paginationControls = document.createElement('div');
+    paginationControls.className = 'pagination is-centered mt-5 mb-5';
+    paginationControls.id = 'rf-pagination';
+    paginationControls.innerHTML = `
+      <a class="pagination-previous" id="rf-prev-page-btn" disabled>Previous</a>
+      <a class="pagination-next" id="rf-next-page-btn">Next</a>
+      <ul class="pagination-list" id="rf-pagination-list">
+        <li><a class="pagination-link is-current" aria-label="Page 1" aria-current="page">1</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 2">2</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 3">3</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 4">4</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 5">5</a></li>
+        <li><span class="pagination-ellipsis">&hellip;</span></li>
+        <li><a class="pagination-link" aria-label="Goto page 10">10</a></li>
+      </ul>
+    `;
+    rfPaginationContainer.appendChild(paginationControls);
+    
+    // Initialize RF pagination and show first page
+    setTimeout(() => {
+      // Re-fetch elements after they're added to the DOM
+      const rfPrevBtn = document.getElementById('rf-prev-page-btn');
+      const rfNextBtn = document.getElementById('rf-next-page-btn');
+      const rfPaginationList = document.getElementById('rf-pagination-list');
+      
+      // Initialize the RF pagination system
+      initRFPagination(rfPrevBtn, rfNextBtn, rfPaginationList);
+      showRFPage(1);
+    }, 100);
+    
+    // Initialize the Radiance Field pagination system
+    function initRFPagination(prevBtn, nextBtn, paginationList) {
+      // Create click handlers for pagination controls
+      prevBtn.addEventListener('click', function() {
+        if (rfState.currentPage > 1) {
+          showRFPage(rfState.currentPage - 1);
+        }
+      });
+      
+      nextBtn.addEventListener('click', function() {
+        if (rfState.currentPage < rfState.totalPages) {
+          showRFPage(rfState.currentPage + 1);
+        }
+      });
+      
+      // Setup pagination links
+      const pageLinks = paginationList.querySelectorAll('.pagination-link');
+      pageLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          const page = parseInt(this.textContent);
+          showRFPage(page);
+        });
+      });
+    }
+    
+    // Show a specific page of Radiance Field comparisons
+    function showRFPage(pageNum) {
+      // Update state
+      rfState.currentPage = pageNum;
+      
+      // Hide all pages
+      const pages = document.querySelectorAll('.rf-page');
+      pages.forEach(page => {
+        page.style.display = 'none';
+      });
+      
+      // Show the current page
+      const currentPageEl = document.getElementById(`rf-page-${pageNum}`);
+      
+      if (currentPageEl) {
+        currentPageEl.style.display = 'block';
+      } else {
+        console.log(`RF Page ${pageNum} does not exist`);
+      }
+      
+      // Update pagination UI
+      updateRFPaginationUI();
+    }
+    
+    // Update the Radiance Field pagination UI based on current state
+    function updateRFPaginationUI() {
+      const rfPrevBtn = document.getElementById('rf-prev-page-btn');
+      const rfNextBtn = document.getElementById('rf-next-page-btn');
+      const rfPaginationList = document.getElementById('rf-pagination-list');
+      
+      // Update previous/next buttons
+      rfPrevBtn.disabled = rfState.currentPage === 1;
+      rfNextBtn.disabled = rfState.currentPage === rfState.totalPages;
+      
+      // Update pagination links
+      const pageLinks = rfPaginationList.querySelectorAll('.pagination-link');
+      pageLinks.forEach(link => {
+        const page = parseInt(link.textContent);
+        if (page === rfState.currentPage) {
+          link.classList.add('is-current');
+          link.setAttribute('aria-current', 'page');
+        } else {
+          link.classList.remove('is-current');
+          link.removeAttribute('aria-current');
+        }
+      });
+    }
+  });
+
+  // Dynamic point cloud page generation
+  document.addEventListener('DOMContentLoaded', function() {
+    // Configuration for point cloud pages
+    const startPC = 1;
+    const pcPerPage = 10;
+    const totalPCPages = 6; // 6 pages for 60 point clouds
+    const endPC = 60;
+    
+    // State for pagination
+    const pcState = {
+      currentPage: 1,
+      totalPages: totalPCPages
+    };
+    
+    // DOM references for PC pagination
+    const pcPrevBtn = document.getElementById('pc-prev-page-btn');
+    const pcNextBtn = document.getElementById('pc-next-page-btn');
+    const pcPaginationList = document.getElementById('pc-pagination-list');
+    
+    // Get container for PC pages
+    const pcPaginationContainer = document.querySelector('.pc-pagination-container');
+    if (!pcPaginationContainer) {
+      console.error("Container for point cloud pages not found!");
+      return;
+    }
+    
+    // Clear any existing content
+    pcPaginationContainer.innerHTML = '';
+    
+    // Generate HTML for all PC pages
+    for (let pageNum = 1; pageNum <= totalPCPages; pageNum++) {
+      // Calculate PC range for this page
+      let pageStartIndex = (pageNum - 1) * pcPerPage;
+      let pageStart = startPC + pageStartIndex;
+      let pageEnd = Math.min(pageStart + pcPerPage - 1, endPC);
+      
+      // Create page div
+      const pageDiv = document.createElement('div');
+      pageDiv.className = 'pc-page';
+      pageDiv.id = `pc-page-${pageNum}`;
+      if (pageNum > 1) {
+        pageDiv.style.display = 'none';
+      }
+      
+      // Create rows for this page (2 rows of 5 items each)
+      for (let rowNum = 0; rowNum < 2; rowNum++) {
+        const gridContainer = document.createElement('div');
+        gridContainer.className = 'grid-container';
+        
+        // Calculate PC numbers for this row
+        const rowStart = pageStart + (rowNum * 5);
+        const rowEnd = Math.min(rowStart + 4, pageEnd);
+        
+        // Add PC items for this row
+        for (let pcNum = rowStart; pcNum <= rowEnd; pcNum++) {
+          // Format the PC number with leading zeros (e.g., 001, 012)
+          const paddedNum = pcNum.toString().padStart(6, '0');
+          
+          const pcDiv = document.createElement('div');
+          pcDiv.style.position = 'relative';
+          pcDiv.innerHTML = `
+            <img-comparison-slider>
+              <img slot="first" src="https://rishit-dagli.github.io/squeeze3d-web-results/pc_gt/${paddedNum}/view_007.png" loading="lazy" />
+              <img slot="second" src="https://rishit-dagli.github.io/squeeze3d-web-results/gen_pc/${paddedNum}/view_007.png" loading="lazy" />
+              <div slot="first-label" class="image-label label-left">GT</div>
+              <div slot="second-label" class="image-label label-right">Squeeze3D</div>
+            </img-comparison-slider>
+          `;
+          gridContainer.appendChild(pcDiv);
+        }
+        
+        pageDiv.appendChild(gridContainer);
+      }
+      
+      // Add page to container
+      pcPaginationContainer.appendChild(pageDiv);
+    }
+    
+    // Add pagination controls
+    const paginationControls = document.createElement('div');
+    paginationControls.className = 'pagination is-centered mt-5 mb-5';
+    paginationControls.id = 'pc-pagination';
+    paginationControls.innerHTML = `
+      <a class="pagination-previous" id="pc-prev-page-btn" disabled>Previous</a>
+      <a class="pagination-next" id="pc-next-page-btn">Next</a>
+      <ul class="pagination-list" id="pc-pagination-list">
+        <li><a class="pagination-link is-current" aria-label="Page 1" aria-current="page">1</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 2">2</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 3">3</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 4">4</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 5">5</a></li>
+        <li><span class="pagination-ellipsis">&hellip;</span></li>
+        <li><a class="pagination-link" aria-label="Goto page 10">10</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 15">15</a></li>
+        <li><a class="pagination-link" aria-label="Goto page 20">20</a></li>
+      </ul>
+    `;
+    pcPaginationContainer.appendChild(paginationControls);
+    
+    // Initialize PC pagination and show first page
+    setTimeout(() => {
+      // Re-fetch elements after they're added to the DOM
+      const pcPrevBtn = document.getElementById('pc-prev-page-btn');
+      const pcNextBtn = document.getElementById('pc-next-page-btn');
+      const pcPaginationList = document.getElementById('pc-pagination-list');
+      
+      // Initialize the PC pagination system
+      initPCPagination(pcPrevBtn, pcNextBtn, pcPaginationList);
+      showPCPage(1);
+    }, 100);
+    
+    // Initialize the Point Cloud pagination system
+    function initPCPagination(prevBtn, nextBtn, paginationList) {
+      // Create click handlers for pagination controls
+      prevBtn.addEventListener('click', function() {
+        if (pcState.currentPage > 1) {
+          showPCPage(pcState.currentPage - 1);
+        }
+      });
+      
+      nextBtn.addEventListener('click', function() {
+        if (pcState.currentPage < pcState.totalPages) {
+          showPCPage(pcState.currentPage + 1);
+        }
+      });
+      
+      // Setup pagination links
+      const pageLinks = paginationList.querySelectorAll('.pagination-link');
+      pageLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          const page = parseInt(this.textContent);
+          showPCPage(page);
+        });
+      });
+    }
+    
+    // Show a specific page of Point Cloud comparisons
+    function showPCPage(pageNum) {
+      // Update state
+      pcState.currentPage = pageNum;
+      
+      // Hide all pages
+      const pages = document.querySelectorAll('.pc-page');
+      pages.forEach(page => {
+        page.style.display = 'none';
+      });
+      
+      // Show the current page
+      const currentPageEl = document.getElementById(`pc-page-${pageNum}`);
+      
+      if (currentPageEl) {
+        currentPageEl.style.display = 'block';
+      } else {
+        console.log(`PC Page ${pageNum} does not exist`);
+      }
+      
+      // Update pagination UI
+      updatePCPaginationUI();
+    }
+    
+    // Update the Point Cloud pagination UI based on current state
+    function updatePCPaginationUI() {
+      const pcPrevBtn = document.getElementById('pc-prev-page-btn');
+      const pcNextBtn = document.getElementById('pc-next-page-btn');
+      const pcPaginationList = document.getElementById('pc-pagination-list');
+      
+      if (!pcPrevBtn || !pcNextBtn || !pcPaginationList) return;
+      
+      // Update previous/next buttons
+      pcPrevBtn.disabled = pcState.currentPage === 1;
+      pcNextBtn.disabled = pcState.currentPage === pcState.totalPages;
+      
+      // Update pagination links
+      const pageLinks = pcPaginationList.querySelectorAll('.pagination-link');
+      pageLinks.forEach(link => {
+        const page = parseInt(link.textContent);
+        if (page === pcState.currentPage) {
+          link.classList.add('is-current');
+          link.setAttribute('aria-current', 'page');
+        } else {
+          link.classList.remove('is-current');
+          link.removeAttribute('aria-current');
+        }
+      });
+    }
+  });
+
+  // Point Cloud display setup
+  const pcState = {
+    currentPage: 1,
+    totalPages: 20,
+    modelsPerPage: 3
+  };
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    // Generate all point cloud pages
+    setupPointCloudPages();
+    
+    // Initialize point cloud pagination
+    setupPCPagination();
+  });
+  
+  // Set up all point cloud pages with 3 models per page
+  function setupPointCloudPages() {
+    const pcPagesContainer = document.getElementById('pc-pages-container');
+    if (!pcPagesContainer) return;
+    
+    // Create 20 pages with 3 models per page (60 models total)
+    for (let pageNum = 1; pageNum <= pcState.totalPages; pageNum++) {
+      // Calculate model indices for this page (1-indexed)
+      const startModelIndex = (pageNum - 1) * pcState.modelsPerPage + 1;
+      
+      // Create page div
+      const pageDiv = document.createElement('div');
+      pageDiv.className = 'model-page';
+      pageDiv.id = `pc-page-${pageNum}`;
+      if (pageNum > 1) {
+        pageDiv.style.display = 'none';
+      }
+      
+      // Create Squeeze3D row
+      const genPCRow = document.createElement('div');
+      genPCRow.className = 'columns is-multiline mb-5';
+      
+      // Add Squeeze3D models
+      for (let i = 0; i < pcState.modelsPerPage; i++) {
+        const modelIndex = startModelIndex + i;
+        if (modelIndex <= 60) {
+          const genColumn = document.createElement('div');
+          genColumn.className = 'column is-4';
+          genColumn.innerHTML = `
+            <div id="pc-gen-${modelIndex}" class="threejs-container">
+              <div class="threejs-label">Squeeze3D</div>
+              <div class="loader">
+                <div class="spinner"></div>
+                <p>Loading point cloud...</p>
+              </div>
+            </div>
+            <a href="https://rishit-dagli.github.io/squeeze3d-web-results/gen_pc/${modelIndex}.ply" class="download-button" download>Download Point Cloud</a>
+          `;
+          genPCRow.appendChild(genColumn);
+        }
+      }
+      pageDiv.appendChild(genPCRow);
+      
+      // Create Ground Truth row
+      const gtPCRow = document.createElement('div');
+      gtPCRow.className = 'columns is-multiline mb-5 mt-5';
+      
+      // Add Ground Truth models
+      for (let i = 0; i < pcState.modelsPerPage; i++) {
+        const modelIndex = startModelIndex + i;
+        if (modelIndex <= 60) {
+          const gtColumn = document.createElement('div');
+          gtColumn.className = 'column is-4';
+          gtColumn.innerHTML = `
+            <div id="pc-gt-${modelIndex}" class="threejs-container">
+              <div class="threejs-label">Ground Truth</div>
+              <div class="loader">
+                <div class="spinner"></div>
+                <p>Loading point cloud...</p>
+              </div>
+            </div>
+            <a href="https://rishit-dagli.github.io/squeeze3d-web-results/gt_pc/${modelIndex}.ply" class="download-button" download>Download Point Cloud</a>
+          `;
+          gtPCRow.appendChild(gtColumn);
+        }
+      }
+      pageDiv.appendChild(gtPCRow);
+      
+      // Add page to container
+      pcPagesContainer.appendChild(pageDiv);
+    }
+    
+    // Load point clouds for the first page
+    loadPointCloudsForPage(1);
+  }
+  
+  // Load point clouds for a specific page
+  function loadPointCloudsForPage(pageNum) {
+    const startModelIndex = (pageNum - 1) * pcState.modelsPerPage + 1;
+    
+    for (let i = 0; i < pcState.modelsPerPage; i++) {
+      const modelIndex = startModelIndex + i;
+      if (modelIndex <= 60) {
+        // Load Squeeze3D point cloud
+        loadPointCloud(`pc-gen-${modelIndex}`, `https://rishit-dagli.github.io/squeeze3d-web-results/gen_pc/${modelIndex}.ply`);
+        
+        // Load ground truth point cloud
+        loadPointCloud(`pc-gt-${modelIndex}`, `https://rishit-dagli.github.io/squeeze3d-web-results/gt_pc/${modelIndex}.ply`);
+      }
+    }
+  }
+  
+  // Load and display a point cloud in the given container
+  function loadPointCloud(containerId, plyUrl) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    const loader = container.querySelector('.loader');
+    
+    // Create the Three.js scene
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf5f5f5);
+    
+    // Create camera
+    const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.z = 2;
+    
+    // Create renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(renderer.domElement);
+    
+    // Add orbit controls
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.25;
+    
+    // Add lights
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+    
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(1, 1, 1);
+    scene.add(directionalLight);
+    
+    // Load the PLY file
+    if (!THREE.PLYLoader) {
+      console.error('PLYLoader not available');
+      if (loader) {
+        loader.innerHTML = '<p>PLYLoader not available</p>';
+      }
+      return;
+    }
+    
+    const plyLoader = new THREE.PLYLoader();
+    plyLoader.load(plyUrl, function(geometry) {
+      // Create point cloud material with larger point size
+      const material = new THREE.PointsMaterial({
+        size: 0.05,
+        vertexColors: true,
+        sizeAttenuation: true
+      });
+      
+      // Create point cloud object
+      const pointCloud = new THREE.Points(geometry, material);
+      
+      // Center the point cloud
+      geometry.computeBoundingBox();
+      const center = new THREE.Vector3();
+      geometry.boundingBox.getCenter(center);
+      pointCloud.position.sub(center);
+      
+      scene.add(pointCloud);
+      
+      // Adjust camera to fit the model
+      const boundingBox = new THREE.Box3().setFromObject(pointCloud);
+      const size = boundingBox.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      
+      // Position camera closer to zoom in
+      camera.position.z = maxDim * 0.85;
+      
+      // Also allow a closer view with the orbit controls
+      controls.minDistance = maxDim * 0.5;
+      controls.maxDistance = maxDim * 3;
+      
+      // Hide the loader
+      if (loader) loader.style.display = 'none';
+      
+      // Set up auto-rotation
+      const rotationSpeed = 0.005;
+      let autoRotate = true;
+      
+      // Toggle auto-rotation on click
+      container.addEventListener('click', function() {
+        autoRotate = !autoRotate;
+      });
+      
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+        
+        // Apply auto-rotation if enabled
+        if (autoRotate) {
+          pointCloud.rotation.y += rotationSpeed;
+        }
+        
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      
+      animate();
+    }, 
+    // Progress callback
+    function(xhr) {
+      // Update progress if needed
+    }, 
+    // Error callback
+    function(error) {
+      console.error('Error loading PLY:', error);
+      if (loader) {
+        loader.innerHTML = '<p>Error loading point cloud</p>';
+      }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+  }
+  
+  // Show a specific page of point cloud comparisons
+  function showPCPage(pageNum) {
+    // Update state
+    pcState.currentPage = pageNum;
+    
+    // Hide all pages
+    const pages = document.querySelectorAll('#pc-pages-container .model-page');
+    pages.forEach(page => {
+      page.style.display = 'none';
+    });
+    
+    // Show the current page
+    const currentPageEl = document.getElementById(`pc-page-${pageNum}`);
+    
+    if (currentPageEl) {
+      currentPageEl.style.display = 'block';
+      // Load point clouds for this page
+      loadPointCloudsForPage(pageNum);
+    } else {
+      console.log(`PC Page ${pageNum} does not exist`);
+    }
+    
+    // Update pagination UI
+    updatePCPaginationUI();
+  }
+  
+  // Set up pagination for point clouds
+  function setupPCPagination() {
+    const prevBtn = document.getElementById('pc-prev-page-btn');
+    const nextBtn = document.getElementById('pc-next-page-btn');
+    const paginationList = document.getElementById('pc-pagination-list');
+    
+    if (prevBtn && nextBtn && paginationList) {
+      // Create click handlers for pagination controls
+      prevBtn.addEventListener('click', function() {
+        if (pcState.currentPage > 1) {
+          showPCPage(pcState.currentPage - 1);
+        }
+      });
+      
+      nextBtn.addEventListener('click', function() {
+        if (pcState.currentPage < pcState.totalPages) {
+          showPCPage(pcState.currentPage + 1);
+        }
+      });
+      
+      // Setup pagination links
+      const pageLinks = paginationList.querySelectorAll('.pagination-link');
+      pageLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          const page = parseInt(this.textContent);
+          showPCPage(page);
+        });
+      });
+    }
+  }
+  
+  // Update the point cloud pagination UI based on current state
+  function updatePCPaginationUI() {
+    const pcPrevBtn = document.getElementById('pc-prev-page-btn');
+    const pcNextBtn = document.getElementById('pc-next-page-btn');
+    const pcPaginationList = document.getElementById('pc-pagination-list');
+    
+    if (!pcPrevBtn || !pcNextBtn || !pcPaginationList) return;
+    
+    // Update previous/next buttons
+    pcPrevBtn.disabled = pcState.currentPage === 1;
+    pcNextBtn.disabled = pcState.currentPage === pcState.totalPages;
+    
+    // Update pagination links
+    const pageLinks = pcPaginationList.querySelectorAll('.pagination-link');
+    pageLinks.forEach(link => {
+      const page = parseInt(link.textContent);
+      if (page === pcState.currentPage) {
+        link.classList.add('is-current');
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.classList.remove('is-current');
+        link.removeAttribute('aria-current');
+      }
+    });
+  }
+</script>
+
+<section class="hero is-light is-small">
+  <div class="hero-body has-text-centered">
+    <h1 class="title is-1 mathvista_other">
+      <span class="mathvista_other" style="vertical-align: middle">Additional Results and Analysis</span>
+    </h1>
+  </div>
+</section>
+<br>
+
+<div class="has-text-centered link-block">
+<a href="https://www.cs.toronto.edu/~rishit/projects/squeeze3d/extra_results.pdf" target="_blank"
+    class="external-link button is-normal is-rounded is-dark">
+  <span class="icon">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" class="custom-icon">
+  </span>
+  <span>Results Library (17.3 MB)</span>
+</a>
+</div>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Interpolation Figure -->
+    <div class="columns is-centered" style="margin-bottom: 3rem;">
+      <div class="column is-four-fifths">
+        <figure class="image">
+          <img src="./assets/img/squeeze3d/interp.png" alt="Interpolation results" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
+            <strong style="color: #363636;">Figure:</strong> <strong>Interpolation.</strong> The compressed representations we obtain can also be interpolated. In these examples we obtain the compressed representation for the leftmost and rightmost meshes and linearly interpolate between them.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- Rotated Views Figure -->
+    <div class="columns is-centered" style="margin-bottom: 3rem;">
+      <div class="column is-four-fifths">
+        <figure class="image">
+          <img src="./assets/img/squeeze3d/rotated.png" alt="Multiple camera angles" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
+            <strong style="color: #363636;">Figure:</strong> <strong>Consistent reconstruction across views.</strong> We show a mesh reconstructed with our method through multiple camera angles to demonstrate that our approach learns a correct transformation between the latent spaces and the reconstruction is consistent.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- Textureless Meshes Figure -->
+    <div class="columns is-centered" style="margin-bottom: 3rem;">
+      <div class="column is-four-fifths">
+        <figure class="image">
+          <img src="./assets/img/squeeze3d/textureless.png" alt="Textureless mesh compression" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
+            <strong style="color: #363636;">Figure:</strong> <strong>Textureless mesh compression.</strong> We observe that our method learns to effectively represent intricate geometrical details even for textureless meshes.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- Different Generators and Complex Meshes Side by Side -->
+    <div class="columns is-centered" style="margin-bottom: 3rem;">
+      <!-- Different Generators Figure -->
+      <div class="column is-7" style="padding-right: 1rem;">
+        <figure class="image">
+          <img src="./assets/img/squeeze3d/otherresults.png" alt="Different 3D generators" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
+            <strong style="color: #363636;">Figure:</strong> <strong>Compression results using different 3D generators.</strong> <span class="squeeze3d-text">Squeeze3D</span> is agnostic to the choice of a 3D generation model. Thus, we show compression results with the 3D generators: OpenLRM, and Shap-E. We choose 3D meshes that lie in the representation capacity of the chosen 3D generators.
+          </figcaption>
+        </figure>
+      </div>
+      
+      <!-- Complex Meshes Figure -->
+      <div class="column is-4" style="padding-left: 1rem;">
+        <figure class="image">
+          <img src="./assets/img/squeeze3d/tradeoff.png" alt="Complex mesh compression" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
+            <strong style="color: #363636;">Figure:</strong> <strong>Compressing Complex Meshes.</strong> <span class="squeeze3d-text">Squeeze3D</span> can be used to compress highly complex textured 3D meshes (in this case 77851 vertices and 120812 faces).
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero is-light is-small">
+  <div class="hero-body has-text-centered">
+    <h1 class="title is-1 mathvista_other">
+      <span class="mathvista_other" style="vertical-align: middle">Paper</span>
+    </h1>
+  </div>
+</section>
+
+<section class="section" style="padding-top: 1.5rem; padding-bottom: 1.5rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-10">
+        <div class="paper-preview-section">
+          <div class="columns is-vcentered">
+            <div class="column is-4" style="padding-right: 2.5rem;">
+              <img src="./assets/img/squeeze3d/paper_preview.png" alt="Paper thumbnail" class="image" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
+            <div class="column is-8" style="padding-left: 3rem;">
+              <h2 class="title is-5 mb-2">Squeeze3D: Your 3D Generation Model is Secretly a Representation-Agnostic Extreme Neural Compressor</h2>
+              
+              <div class="content has-text-justified" style="font-size: 0.95rem;">
+                <p class="author-list mb-1" style="color: #4a4a4a;">
+                  <strong>Rishit Dagli</strong>, 
+                  <strong>Yushi Guan</strong>, 
+                  <strong>Sankeerth Durvasula</strong>, 
+                  <strong>Mohammadreza Mofayezi</strong>, 
+                  <strong>Nandita Vijaykumar</strong>
+                </p>
+                <p class="mb-3" style="color: #7a7a7a;"><em>University of Toronto</em></p>
+                
+                <div class="links" style="font-size: 0.9rem; display: flex; flex-wrap: wrap; gap: 1rem;">
+                  <a href="https://www.cs.toronto.edu/~rishit/projects/squeeze3d/squeeze3d.pdf" target="_blank" style="color: #3273dc; text-decoration: none; display: flex; align-items: center;">
+                    <i class="fas fa-file-pdf" style="margin-right: 0.5rem;"></i>
+                    Paper (PDF, 24.5 MB)
+                  </a>
+                  
+                  <a href="#" target="_blank" style="color: #3273dc; text-decoration: none; display: flex; align-items: center;">
+                    <i class="ai ai-arxiv" style="margin-right: 0.5rem;"></i>
+                    arXiv version
+                  </a>
+                  
+                  <a href="#BibTeX" style="color: #3273dc; text-decoration: none; display: flex; align-items: center;">
+                    <i class="fas fa-quote-right" style="margin-right: 0.5rem;"></i>
+                    BibTeX
+                  </a>
+                  
+                  <a href="https://github.com/Rishit-dagli/squeeze3d" target="_blank" style="color: #3273dc; text-decoration: none; display: flex; align-items: center;">
+                    <i class="fab fa-github" style="margin-right: 0.5rem;"></i>
+                    Code
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero is-light is-small">
+  <div class="hero-body has-text-centered">
+    <h1 class="title is-1 mathvista_other">
+      <span class="mathvista_other" style="vertical-align: middle">BibTeX</span>
+    </h1>
+  </div>
+</section>
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <div style="position: relative;">
+      <pre style="background-color: #f5f5f5; border-radius: 8px; padding: 1.5rem; overflow-x: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);"><code id="squeezeBibTeX">@misc{squeeze3d,
+      title={Squeeze3D: Your 3D Generation Model is Secretly a Representation-Agnostic Extreme Neural Compressor}, 
+      author={Rishit Dagli and Yushi Guan and Sankeerth Durvasula and Mohammadreza Mofayezi and Nandita Vijaykumar},
+      year={2024},
+      eprint={2406.06612},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}</code></pre>
+      <button class="button is-small is-primary" onclick="copyBibTeX()" style="position: absolute; top: 15px; right: 15px; background: linear-gradient(135deg, #3273dc 0%, #209cee 100%); border: none;">
+        <span class="icon">
+          <i class="fas fa-copy"></i>
+        </span>
+        <span>Copy</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<script>
+  function copyBibTeX() {
+    var bibTeX = document.getElementById("squeezeBibTeX").innerText;
+    navigator.clipboard.writeText(bibTeX);
+    
+    // Show feedback
+    const button = event.currentTarget;
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<span class="icon"><i class="fas fa-check"></i></span><span>Copied!</span>';
+    button.classList.add('is-success');
+    button.classList.remove('is-primary');
+    
+    setTimeout(() => {
+      button.innerHTML = originalHTML;
+      button.classList.remove('is-success');
+      button.classList.add('is-primary');
+    }, 2000);
+  }
+</script>
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="https://arxiv.org/">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/Rishit-dagli/squeeze3d" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of <a 
+              href="https://nerfies.github.io/">Nerfies website</a>, we just ask that you link back to <a 
+              href="https://nerfies.github.io/">Nerfies page</a> in the footer.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
