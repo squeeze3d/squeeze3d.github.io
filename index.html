@@ -488,7 +488,7 @@
         <figure class="image">
           <img src="./assets/img/squeeze3d/teaser.png" alt="Squeeze3D teaser" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
           <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
-            <strong style="color: #363636;">Figure:</strong> We showcase extreme compression of 3D models while preserving perceptual quality. <strong>(Top)</strong> Our method compresses a diverse collection of 3D models in various formats: meshes, point clouds, and radiance fields. <strong>(Bottom)</strong> Detailed comparison between the original "Pikachu" model (6.11 MB) and the reconstruction after compression. The object was compressed to merely 0.003 MB.
+            <strong style="color: #363636;">Figure:</strong> <strong>Squeeze3D</strong> allows for extreme compression of 3D models while preserving perceptual quality. <em>Top:</em> Our method compresses a diverse collection of 3D models. <em>Bottom:</em> Comparison between the original model (6.11 MB) and the reconstruction after compression (0.003 MB).
           </figcaption>
         </figure>
       </div>
@@ -559,7 +559,7 @@
         <figure class="image" style="margin-bottom: 2rem;">
           <img src="./assets/img/squeeze3d/pipeline.png" alt="Squeeze3D pipeline" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
           <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
-            <strong style="color: #363636;">Figure:</strong> Overview of the <span class="squeeze3d-text">Squeeze3D</span> pipeline. During compression, any 3D geometry (mesh, point cloud, or radiance field) is encoded and transformed into a highly compact representation. During decompression, this representation is mapped to the generator's latent space to reconstruct the original geometry.
+            <strong style="color: #363636;">Figure:</strong> <strong>Overview of our Method.</strong> Squeeze3D bridges arbitrary latent spaces between 3D encoders and generators through trainable mapping networks. During compression, a 3D geometry is encoded and then transformed into a compact representation via the forward mapping network. During decompression, the reverse mapping network converts this representation into the generator's latent space, which is then used to reconstruct the original geometry.
           </figcaption>
         </figure>
         
@@ -578,12 +578,12 @@
         </div>
         
         <!-- Architecture Figure -->
-        <!-- <figure class="image" style="margin-bottom: 2rem;">
-          <img src="./assets/img/squeeze3d/arch.png" alt="Mapping network architectures" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <figure class="image" style="margin-bottom: 2rem; text-align: center;">
+          <img src="./assets/img/squeeze3d/arch.png" alt="Mapping network architectures" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 60%;">
           <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
-            <strong style="color: #363636;">Figure:</strong> Architecture of our mapping networks.
+            <strong style="color: #363636;">Figure:</strong> <strong>Network Architectures.</strong>
           </figcaption>
-        </figure> -->
+        </figure>
         
         <!-- Training Process -->
         <div class="content has-text-justified" style="margin-bottom: 2rem;">
@@ -597,7 +597,7 @@
         <figure class="image" style="margin-bottom: 2rem;">
           <img src="./assets/img/squeeze3d/training.png" alt="Training process" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
           <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
-            <strong style="color: #363636;">Figure:</strong> Training <span class="squeeze3d-text">Squeeze3D</span>. (a) We generate synthetic training data by sampling from the generator and encoding the outputs. (b) The mapping networks are trained with a combination of reconstruction loss and our novel Gram loss that ensures efficient use of the compressed representation dimensions.
+            <strong style="color: #363636;">Figure:</strong> <strong>Training Squeeze3D.</strong> We show an overview of (a) our process of creating synthetic data to train the mapping networks and (b) our process of training the mapping networks.
           </figcaption>
         </figure>
         
@@ -643,7 +643,7 @@
         <figure class="image" style="margin-bottom: 1rem;">
           <img src="./assets/img/squeeze3d/mesh_comparisions.png" alt="Mesh compression comparison" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
           <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
-            <strong style="color: #363636;">Figure:</strong> Qualitative mesh compression results. We compare Squeeze3D to state-of-the-art methods. Our approach maintains visually important geometric details.
+            <strong style="color: #363636;">Figure:</strong> <strong>Qualitative mesh compression results.</strong> We compare Squeeze3D to state-of-the-art methods. Our approach maintains visually important geometric details.
           </figcaption>
         </figure>
       </div>
@@ -655,7 +655,7 @@
         <figure class="image" style="margin-bottom: 1rem;">
           <img src="./assets/img/squeeze3d/pc_comparisions.png" alt="Point cloud compression comparison" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
           <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
-            <strong style="color: #363636;">Figure:</strong> Qualitative point cloud compression results. We show qualitative results comparing Squeeze3D to state-of-the-art methods. Our approach achieves significantly higher compression ratios while maintaining perceptually important geometric details.
+            <strong style="color: #363636;">Figure:</strong> <strong>Qualitative point cloud compression results.</strong> We show qualitative results comparing Squeeze3D to state-of-the-art methods. Our approach achieves significantly higher compression ratios while maintaining perceptually important geometric details.
           </figcaption>
         </figure>
       </div>
@@ -667,7 +667,7 @@
         <figure class="image" style="margin-bottom: 1rem;">
           <img src="./assets/img/squeeze3d/rf_comparisions.png" alt="Radiance field compression comparison" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
           <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
-            <strong style="color: #363636;">Figure:</strong> Qualitative radiance field compression results. We show qualitative results comparing Squeeze3D to state-of-the-art methods. Our approach achieves a significantly higher compression ratio while maintaining visually important geometric details.
+            <strong style="color: #363636;">Figure:</strong> <strong>Qualitative radiance field compression results.</strong> We show qualitative results comparing Squeeze3D to state-of-the-art methods. Our approach achieves a significantly higher compression ratio while maintaining visually important geometric details.
           </figcaption>
         </figure>
       </div>
@@ -3188,10 +3188,10 @@
       <div class="column is-10">
         <div class="paper-preview-section">
           <div class="columns is-vcentered">
-            <div class="column is-4" style="padding-right: 2.5rem;">
-              <img src="./assets/img/squeeze3d/paper_preview.png" alt="Paper thumbnail" class="image" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <div class="column is-5" style="padding-right: 2.5rem;">
+              <img src="./assets/img/squeeze3d/paper_preview.png" alt="Paper thumbnail" class="image" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%;">
             </div>
-            <div class="column is-8" style="padding-left: 3rem;">
+            <div class="column is-7" style="padding-left: 3rem;">
               <h2 class="title is-5 mb-2">Squeeze3D: Your 3D Generation Model is Secretly an Extreme Neural Compressor</h2>
               
               <div class="content has-text-justified" style="font-size: 0.95rem;">
