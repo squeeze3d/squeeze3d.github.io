@@ -16,6 +16,16 @@
   <meta name="twitter:title" content="Squeeze3D: Extreme Neural Compression with Latent Space Bridging">
   <meta name="twitter:description" content="Extreme mesh, point-cloud, and radiance-field compression by bridging pre-trained latent spaces.">
   <meta name="twitter:image" content="https://squeeze3d.github.io/assets/img/squeeze3d/teaser.webp">
+  <meta name="citation_title" content="Squeeze3D: Extreme Neural Compression with Latent Space Bridging">
+  <meta name="citation_author" content="Dagli, Rishit">
+  <meta name="citation_author" content="Guan, Yushi">
+  <meta name="citation_author" content="Durvasula, Sankeerth">
+  <meta name="citation_author" content="Mofayezi, Mohammadreza">
+  <meta name="citation_author" content="Vijaykumar, Nandita">
+  <meta name="citation_publication_date" content="2026">
+  <meta name="citation_journal_title" content="Transactions on Machine Learning Research">
+  <meta name="citation_pdf_url" content="https://openreview.net/pdf?id=XXYGHfqzvA">
+  <meta name="citation_arxiv_id" content="2506.07932">
   <title>Squeeze3D: Extreme Neural Compression with Latent Space Bridging</title>
   <link rel="preload" as="image"
         href="./assets/img/squeeze3d/teaser-640.webp"
@@ -239,6 +249,14 @@
       min-height: 32px;
       margin: 0 2px;
     }
+
+    @media (max-width: 360px) {
+      .publication-title {
+        font-size: 2.15rem !important;
+        overflow-wrap: normal;
+        word-break: normal;
+      }
+    }
   </style>
 </head>
 <body>
@@ -406,9 +424,9 @@
     <!-- Squeeze3D Method. -->
     <section class="hero is-light is-small">
       <div class="hero-body has-text-centered">
-        <h1 class="title is-1 mathvista_other">
+        <h2 class="title is-1 mathvista_other">
           <span class="mathvista_other" style="vertical-align: middle">Squeeze3D</span>
-        </h1>
+        </h2>
       </div>
     </section>
 
@@ -438,7 +456,7 @@
 
         <!-- Key Components -->
         <div class="content has-text-justified" style="margin-bottom: 2rem;">
-          <h2 class="title is-5">Key Components</h2>
+          <h3 class="title is-5">Key Components</h3>
           <p>
             The architecture consists of four main components:
           </p>
@@ -452,7 +470,7 @@
 
         <!-- Training Process -->
         <div class="content has-text-justified" style="margin-bottom: 2rem;">
-          <h2 class="title is-5">Training Process</h2>
+          <h3 class="title is-5">Training Process</h3>
           <p>
             Since we cannot directly obtain paired data between encoder and generator latent spaces, we employ a synthetic data generation approach:
           </p>
@@ -484,9 +502,9 @@
 
 <section class="hero is-light is-small">
   <div class="hero-body has-text-centered">
-    <h1 class="title is-1 mathvista_other">
+    <h2 class="title is-1 mathvista_other">
       <span class="mathvista_other" style="vertical-align: middle">Main Results</span>
-    </h1>
+    </h2>
   </div>
 </section>
 <br>
@@ -495,7 +513,7 @@
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Comparison with Previous Works</h2>
+        <h3 class="title is-3">Comparison with Previous Works</h3>
       </div>
     </div>
     <!-- Mesh Comparisons -->
@@ -540,7 +558,7 @@
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Compression at a Glance</h2>
+        <h3 class="title is-3">Compression at a Glance</h3>
       </div>
     </div>
     <div class="columns is-centered has-text-centered">
@@ -574,7 +592,7 @@
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Mesh Results</h2>
+        <h3 class="title is-3">Mesh Results</h3>
         <div class="content has-text-justified">
           <p>
             Drag the divider to compare each ground-truth mesh with its <span class="squeeze3d-text">Squeeze3D</span> reconstruction. Drag the model to rotate it and scroll to zoom.
@@ -598,7 +616,7 @@
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Radiance Field Results</h2>
+        <h3 class="title is-3">Radiance Field Results</h3>
         <div class="content has-text-justified">
           <p>
             Compare ground-truth radiance fields (left) with <span class="squeeze3d-text">Squeeze3D</span> reconstructions (right). These examples are randomly selected from the test set and shown from one fixed view. Drag the slider to inspect each result.
@@ -619,7 +637,7 @@
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Point Cloud Results</h2>
+        <h3 class="title is-3">Point Cloud Results</h3>
         <div class="content has-text-justified">
           <p>
             Drag the divider to compare each ground-truth point cloud with its <span class="squeeze3d-text">Squeeze3D</span> reconstruction. Drag the point cloud to rotate it and scroll to zoom.
@@ -639,9 +657,9 @@
 
 <section class="hero is-light is-small">
   <div class="hero-body has-text-centered">
-    <h1 class="title is-1 mathvista_other">
+    <h2 class="title is-1 mathvista_other">
       <span class="mathvista_other" style="vertical-align: middle">Additional Results and Analysis</span>
-    </h1>
+    </h2>
   </div>
 </section>
 <br>
@@ -721,9 +739,9 @@
 
 <section class="hero is-light is-small">
   <div class="hero-body has-text-centered">
-    <h1 class="title is-1 mathvista_other">
+    <h2 class="title is-1 mathvista_other">
       <span class="mathvista_other" style="vertical-align: middle">Paper</span>
-    </h1>
+    </h2>
   </div>
 </section>
 
@@ -737,7 +755,7 @@
               <img src="./assets/img/squeeze3d/paper_preview.webp" alt="Paper thumbnail" width="1275" height="1650" class="image" loading="lazy" decoding="async" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%;">
             </div>
             <div class="column is-7" style="padding-left: 3rem;">
-              <h2 class="title is-5 mb-2">Squeeze3D: Extreme Neural Compression with Latent Space Bridging</h2>
+              <h3 class="title is-5 mb-2">Squeeze3D: Extreme Neural Compression with Latent Space Bridging</h3>
 
               <div class="content has-text-justified" style="font-size: 0.95rem;">
                 <p class="author-list mb-1" style="color: #4a4a4a;">
@@ -781,9 +799,9 @@
 
 <section class="hero is-light is-small">
   <div class="hero-body has-text-centered">
-    <h1 class="title is-1 mathvista_other">
+    <h2 class="title is-1 mathvista_other">
       <span class="mathvista_other" style="vertical-align: middle">BibTeX</span>
-    </h1>
+    </h2>
   </div>
 </section>
 
