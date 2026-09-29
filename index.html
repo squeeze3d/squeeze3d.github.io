@@ -27,11 +27,6 @@
   <meta name="citation_pdf_url" content="https://openreview.net/pdf?id=XXYGHfqzvA">
   <meta name="citation_arxiv_id" content="2506.07932">
   <title>Squeeze3D: Extreme Neural Compression with Latent Space Bridging</title>
-  <link rel="preload" as="image"
-        href="./assets/img/squeeze3d/teaser-640.webp"
-        imagesrcset="./assets/img/squeeze3d/teaser-640.webp 640w, ./assets/img/squeeze3d/teaser-960.webp 960w, ./assets/img/squeeze3d/teaser.webp 2063w"
-        imagesizes="(max-width: 1023px) 80vw, 768px"
-        type="image/webp">
   <!-- Defer analytics until the page's critical content is ready. -->
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -250,6 +245,44 @@
       margin: 0 2px;
     }
 
+    .hero-video-block {
+      margin-bottom: 0 !important;
+    }
+
+    .hero-video-block .image.is-16by9 {
+      position: relative;
+      height: 0;
+      padding-top: 56.25%;
+      overflow: hidden;
+    }
+
+    .hero-video-block iframe {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .hero-video-block .column {
+      padding-bottom: 0 !important;
+    }
+
+    .hero-tldr-bar {
+      width: 100%;
+      margin: 0 !important;
+      border-left: 4px solid #3273dc;
+      border-radius: 0;
+      background-color: #f0f8ff;
+      color: #1f2d3d;
+    }
+
+    .hero-tldr-bar p {
+      margin: 0 !important;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
     @media (max-width: 360px) {
       .publication-title {
         font-size: 2.15rem !important;
@@ -351,154 +384,23 @@
 
 <section class="section">
   <div class="container is-max-desktop">
-    <!-- TL;DR. -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <div class="notification is-light" style="background-color: #f0f8ff; border-left: 4px solid #3273dc;">
-          <p style="font-size: 1.1rem; color: #363636;">
-            How can we bridge the latent spaces of different models? We do so without any reconstruction-based losses, only latent space loss + dimension-wise contrastive loss. As an application, we apply it to 3D and show we can use it for extreme compression.
+    <!-- Hero Video + TL;DR. -->
+    <div class="columns is-centered has-text-centered hero-video-block">
+      <div class="column is-full" style="padding-bottom: 0 !important; margin-bottom: 0 !important;">
+        <div class="notification hero-tldr-bar" style="margin-top: 0 !important;">
+          <p>
+            <strong>TL;DR:</strong> How can we bridge the latent spaces of different models? We do so without any reconstruction-based losses, only latent space loss + dimension-wise contrastive loss. As an application, we apply it to 3D and show we can use it for extreme compression.
           </p>
         </div>
-      </div>
-    </div>
-    <!--/ TL;DR. -->
-
-    <!-- Teaser. -->
-    <div class="columns is-centered has-text-centered" style="margin-top: 2rem;">
-      <div class="column is-four-fifths">
-        <figure class="image">
-          <img src="./assets/img/squeeze3d/teaser-640.webp"
-               srcset="./assets/img/squeeze3d/teaser-640.webp 640w, ./assets/img/squeeze3d/teaser-960.webp 960w, ./assets/img/squeeze3d/teaser.webp 2063w"
-               sizes="(max-width: 1023px) 80vw, 768px"
-               alt="Squeeze3D teaser" width="2063" height="1101" fetchpriority="high"
-               style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
-            <strong>Squeeze3D</strong> allows for extreme compression of 3D models while preserving perceptual quality. <em>Top:</em> Our method compresses a diverse collection of 3D models. <em>Bottom:</em> Comparison between the original model (6.11 MB) and the reconstruction after compression (0.003 MB).
-          </figcaption>
+        <figure class="image is-16by9" style="width: 100%; margin-bottom: 0 !important;">
+          <iframe class="has-ratio" width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/MpLLZUvVu9U" style="display: block;" title="Squeeze3D video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
         </figure>
       </div>
     </div>
-    <!--/ Teaser. -->
+    <!--/ Hero Video + TL;DR. -->
 
-    <!-- Abstract. -->
-    <div class="columns is-centered has-text-centered" style="margin-top: 3rem;">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Abstract</h2>
-        <div class="content has-text-justified">
-          <p>
-            We propose <span class="squeeze3d-text">Squeeze3D</span>, a novel framework that leverages implicit prior knowledge learnt by existing pre-trained encoders and decoders to compress 3D data at extremely high compression ratios. Our approach bridges the latent spaces between a pre-trained encoder and a pre-trained decoder model through trainable mapping networks. Any 3D asset represented as a mesh, point cloud, or radiance field is first encoded by the pre-trained encoder and then transformed (i.e. <em>compressed</em>) into a highly compact latent code by a mapping network. This latent code can effectively be used as an extremely compressed representation of the mesh, point cloud, or radiance field. A mapping network transforms the compressed latent code into the latent space of a powerful generative model; the decoder of this generative model then recreates the original 3D asset (i.e. <em>decompression</em>). <span class="squeeze3d-text">Squeeze3D</span> is trained entirely on generated synthetic data and does not require any 3D datasets. The <span class="squeeze3d-text">Squeeze3D</span> architecture can be flexibly used with existing pre-trained 3D encoders and existing generative models. It can flexibly support different formats, including meshes, point clouds, and radiance fields. Our experiments demonstrate that <span class="squeeze3d-text">Squeeze3D</span> achieves compression ratios of up to 2187× for textured meshes, 58.5× for point clouds, and more than 650× for radiance fields while maintaining visual quality comparable to many existing methods. <span class="squeeze3d-text">Squeeze3D</span> only incurs a small compression and decompression latency since it does not involve training object-specific networks to compress an object.
-          </p>
-        </div>
-      </div>
     </div>
-    <!--/ Abstract. -->
-
-    <!-- Key Contributions. -->
-    <div class="columns is-centered" style="margin-top: 2rem;">
-      <div class="column is-four-fifths">
-        <div class="notification is-light" style="background-color: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem;">
-          <h3 class="title is-5" style="margin-bottom: 1rem;">
-            <span style="margin-right: 0.5rem;">🚀</span>Key Contributions
-          </h3>
-          <div class="content">
-            <p style="margin-bottom: 0.8rem;">
-              <span style="font-size: 1.2rem; margin-right: 0.5rem;">🎯</span>
-              To the best of our knowledge, this is the first framework that leverages <em>pre-existing, pre-trained</em> generative-model decoders to enable extreme compression of 3D data.
-            </p>
-            <p style="margin-bottom: 0.8rem;">
-              <span style="font-size: 1.2rem; margin-right: 0.5rem;">🔗</span>
-              We demonstrate the feasibility of aligning latent spaces from networks with different structures, objectives, and training distributions. A Gram loss prevents collapse onto a few dominant directions, while synthetic data trains each mapping pair without requiring a 3D dataset.
-            </p>
-            <p style="margin-bottom: 0;">
-              <span style="font-size: 1.2rem; margin-right: 0.5rem;">📊</span>
-              We evaluate <span class="squeeze3d-text">Squeeze3D</span> for mesh, point cloud, and radiance field compression and demonstrate that generative models are a promising approach for extreme compression of 3D models. <span class="squeeze3d-text">Squeeze3D</span> can be flexibly extended to different encoders, generative models, and 3D formats.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </section>
-    <!--/ Key Contributions. -->
-
-    <!-- Squeeze3D Method. -->
-    <section class="hero is-light is-small">
-      <div class="hero-body has-text-centered">
-        <h2 class="title is-1 mathvista_other">
-          <span class="mathvista_other" style="vertical-align: middle">Squeeze3D</span>
-        </h2>
-      </div>
-    </section>
-
-    <section class="section" style="padding-top: 0;">
-    <div class="container is-max-desktop content">
-    <div class="columns is-centered" style="margin-top: 0rem;">
-      <div class="column is-four-fifths">
-        <!-- Method Overview -->
-        <div class="content has-text-justified" style="margin-bottom: 2rem;">
-          <p>
-            <span class="squeeze3d-text">Squeeze3D</span> achieves extreme compression by bridging the latent spaces of pre-trained 3D encoders and generators through trainable mapping networks. Rather than training specialized compression models for each object, we leverage the implicit knowledge already learned by existing 3D generative models. The pre-trained encoder and decoder remain frozen; only the mapping networks are trained.
-          </p>
-        </div>
-
-        <!-- Pipeline Figure -->
-        <figure class="image" style="margin-bottom: 2rem;">
-          <img src="./assets/img/squeeze3d/pipeline-640.webp"
-               srcset="./assets/img/squeeze3d/pipeline-640.webp 640w, ./assets/img/squeeze3d/pipeline-960.webp 960w, ./assets/img/squeeze3d/pipeline.webp 2063w"
-               sizes="(max-width: 1023px) 80vw, 768px"
-               alt="Squeeze3D pipeline" width="2063" height="576"
-               loading="lazy" decoding="async"
-               style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
-            <strong>Overview of our Method.</strong> Squeeze3D bridges arbitrary latent spaces between 3D encoders and generators through trainable mapping networks. During compression, a 3D geometry is encoded and then transformed into a compact representation via the forward mapping network. During decompression, the reverse mapping network converts this representation into the generator's latent space, which is then used to reconstruct the original geometry.
-          </figcaption>
-        </figure>
-
-        <!-- Key Components -->
-        <div class="content has-text-justified" style="margin-bottom: 2rem;">
-          <h3 class="title is-5">Key Components</h3>
-          <p>
-            The architecture consists of four main components:
-          </p>
-          <ul>
-            <li><strong>Pre-trained 3D Encoder (E):</strong> Converts 3D geometries into latent representations z<sub>E</sub></li>
-            <li><strong>Forward Mapping Network (F<sup>E</sup><sub>θ</sub>):</strong> Transforms encoder latents into compressed representation z<sub>comp</sub></li>
-            <li><strong>Reverse Mapping Network (F<sup>D</sup><sub>θ</sub>):</strong> Maps compressed representation to generator latent space z<sub>G</sub></li>
-            <li><strong>Pre-trained generative-model decoder (G):</strong> Reconstructs 3D geometry from latent codes</li>
-          </ul>
-        </div>
-
-        <!-- Training Process -->
-        <div class="content has-text-justified" style="margin-bottom: 2rem;">
-          <h3 class="title is-5">Training Process</h3>
-          <p>
-            Since we cannot directly obtain paired data between encoder and generator latent spaces, we employ a synthetic data generation approach:
-          </p>
-        </div>
-
-        <!-- Training Figure -->
-        <figure class="image" style="margin-bottom: 2rem;">
-          <img src="./assets/img/squeeze3d/training.webp" alt="Training process" width="2063" height="709" loading="lazy" decoding="async" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
-            <strong>Training Squeeze3D.</strong> We show an overview of (a) our process of creating synthetic data to train the mapping networks and (b) our process of training the mapping networks.
-          </figcaption>
-        </figure>
-
-        <!-- Key Insights -->
-        <div class="content has-text-justified">
-          <ul>
-            <li><strong>Gram Loss:</strong> Standard latent-space MSE concentrates information along a few dominant directions. Our Gram loss encourages a semi-orthogonal compressed representation so the available latent dimensions are used effectively.</li>
-            <li><strong>Flexible Formats:</strong> The same framework supports meshes, point clouds, and radiance fields by pairing suitable existing encoders and generative-model decoders; the mapping networks are trained once for each encoder–decoder pair and compressed dimension.</li>
-          </ul>
-          <p style="margin-top: 1rem;">
-            After one-time training for an encoder–decoder pair, each object is compressed and decompressed with feed-forward inference and no per-object optimization.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!--/ Squeeze3D Method. -->
 
 <section class="hero is-light is-small">
   <div class="hero-body has-text-centered">
@@ -654,6 +556,137 @@
   </div>
 </section>
 
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Results Video. -->
+    <div class="columns is-centered has-text-centered hero-video-block">
+      <div class="column is-full" style="padding-bottom: 0 !important; margin-bottom: 0 !important;">
+        <figure class="image is-16by9" style="width: 100%; margin-bottom: 0 !important;">
+          <iframe class="has-ratio" width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/Zw4Dc27iY2k?start=7" style="display: block;" title="Squeeze3D main results video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe>
+        </figure>
+      </div>
+    </div>
+    <!--/ Results Video. -->
+
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered" style="margin-top: 3rem;">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            We propose <span class="squeeze3d-text">Squeeze3D</span>, a novel framework that leverages implicit prior knowledge learnt by existing pre-trained encoders and decoders to compress 3D data at extremely high compression ratios. Our approach bridges the latent spaces between a pre-trained encoder and a pre-trained decoder model through trainable mapping networks. Any 3D asset represented as a mesh, point cloud, or radiance field is first encoded by the pre-trained encoder and then transformed (i.e. <em>compressed</em>) into a highly compact latent code by a mapping network. This latent code can effectively be used as an extremely compressed representation of the mesh, point cloud, or radiance field. A mapping network transforms the compressed latent code into the latent space of a powerful generative model; the decoder of this generative model then recreates the original 3D asset (i.e. <em>decompression</em>). <span class="squeeze3d-text">Squeeze3D</span> is trained entirely on generated synthetic data and does not require any 3D datasets. The <span class="squeeze3d-text">Squeeze3D</span> architecture can be flexibly used with existing pre-trained 3D encoders and existing generative models. It can flexibly support different formats, including meshes, point clouds, and radiance fields. Our experiments demonstrate that <span class="squeeze3d-text">Squeeze3D</span> achieves compression ratios of up to 2187× for textured meshes, 58.5× for point clouds, and more than 650× for radiance fields while maintaining visual quality comparable to many existing methods. <span class="squeeze3d-text">Squeeze3D</span> only incurs a small compression and decompression latency since it does not involve training object-specific networks to compress an object.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+    <!-- Key Contributions. -->
+    <div class="columns is-centered" style="margin-top: 2rem;">
+      <div class="column is-four-fifths">
+        <div class="notification is-light" style="background-color: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem;">
+          <h3 class="title is-5" style="margin-bottom: 1rem;">
+            <span style="margin-right: 0.5rem;">🚀</span>Key Contributions
+          </h3>
+          <div class="content">
+            <p style="margin-bottom: 0.8rem;">
+              <span style="font-size: 1.2rem; margin-right: 0.5rem;">🎯</span>
+              To the best of our knowledge, this is the first framework that leverages <em>pre-existing, pre-trained</em> generative-model decoders to enable extreme compression of 3D data.
+            </p>
+            <p style="margin-bottom: 0.8rem;">
+              <span style="font-size: 1.2rem; margin-right: 0.5rem;">🔗</span>
+              We demonstrate the feasibility of aligning different latent spaces originating from neural networks with different structures, optimization objectives, and training distributions. To make this bridging robust at extreme compression, we introduce a Gram loss that prevents the compressed latent from collapsing onto a few dominant directions (which we show is essential in our ablations), together with a synthetic data-generation recipe that trains the mapping networks without requiring any 3D datasets.
+            </p>
+            <p style="margin-bottom: 0;">
+              <span style="font-size: 1.2rem; margin-right: 0.5rem;">📊</span>
+              We evaluate <span class="squeeze3d-text">Squeeze3D</span> for mesh, point cloud, and radiance field compression and demonstrate that generative models are a promising approach for extreme compression of 3D models. <span class="squeeze3d-text">Squeeze3D</span> can be flexibly extended to different encoders, generative models, and 3D formats.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+    <!--/ Key Contributions. -->
+
+    <!-- Squeeze3D Method. -->
+    <section class="hero is-light is-small">
+      <div class="hero-body has-text-centered">
+        <h2 class="title is-1 mathvista_other">
+          <span class="mathvista_other" style="vertical-align: middle">Squeeze3D</span>
+        </h2>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: 0;">
+    <div class="container is-max-desktop content">
+    <div class="columns is-centered" style="margin-top: 0rem;">
+      <div class="column is-four-fifths">
+        <!-- Method Overview -->
+        <div class="content has-text-justified" style="margin-bottom: 2rem;">
+          <p>
+            <span class="squeeze3d-text">Squeeze3D</span> achieves extreme compression by bridging the latent spaces of pre-trained 3D encoders and generators through trainable mapping networks. Rather than training specialized compression models for each object, we leverage the implicit knowledge already learned by existing 3D generative models. The pre-trained encoder and decoder remain frozen; only the mapping networks are trained.
+          </p>
+        </div>
+
+        <!-- Pipeline Figure -->
+        <figure class="image" style="margin-bottom: 2rem;">
+          <img src="./assets/img/squeeze3d/pipeline-640.webp"
+               srcset="./assets/img/squeeze3d/pipeline-640.webp 640w, ./assets/img/squeeze3d/pipeline-960.webp 960w, ./assets/img/squeeze3d/pipeline.webp 2063w"
+               sizes="(max-width: 1023px) 80vw, 768px"
+               alt="Squeeze3D pipeline" width="2063" height="576"
+               loading="lazy" decoding="async"
+               style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
+            <strong>Overview of our Method.</strong> Squeeze3D bridges arbitrary latent spaces between 3D encoders and generators through trainable mapping networks. During compression, a 3D geometry is encoded and then transformed into a compact representation via the forward mapping network. During decompression, the reverse mapping network converts this representation into the generator's latent space, which is then used to reconstruct the original geometry.
+          </figcaption>
+        </figure>
+
+        <!-- Key Components -->
+        <div class="content has-text-justified" style="margin-bottom: 2rem;">
+          <h3 class="title is-5">Key Components</h3>
+          <p>
+            The architecture consists of four main components:
+          </p>
+          <ul>
+            <li><strong>Pre-trained 3D Encoder (E):</strong> Converts 3D geometries into latent representations z<sub>E</sub></li>
+            <li><strong>Forward Mapping Network (F<sup>E</sup><sub>θ</sub>):</strong> Transforms encoder latents into compressed representation z<sub>comp</sub></li>
+            <li><strong>Reverse Mapping Network (F<sup>D</sup><sub>θ</sub>):</strong> Maps compressed representation to generator latent space z<sub>G</sub></li>
+            <li><strong>Pre-trained generative-model decoder (G):</strong> Reconstructs 3D geometry from latent codes</li>
+          </ul>
+        </div>
+
+        <!-- Training Process -->
+        <div class="content has-text-justified" style="margin-bottom: 2rem;">
+          <h3 class="title is-5">Training Process</h3>
+          <p>
+            Since we cannot directly obtain paired data between encoder and generator latent spaces, we employ a synthetic data generation approach:
+          </p>
+        </div>
+
+        <!-- Training Figure -->
+        <figure class="image" style="margin-bottom: 2rem;">
+          <img src="./assets/img/squeeze3d/training.webp" alt="Training process" width="2063" height="709" loading="lazy" decoding="async" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <figcaption style="margin-top: 1rem; font-size: 0.875rem; color: #666; line-height: 1.6; text-align: center;">
+            <strong>Training Squeeze3D.</strong> We show an overview of (a) our process of creating synthetic data to train the mapping networks and (b) our process of training the mapping networks.
+          </figcaption>
+        </figure>
+
+        <!-- Key Insights -->
+        <div class="content has-text-justified">
+          <ul>
+            <li><strong>Gram Loss:</strong> Standard latent-space MSE concentrates information along a few dominant directions. Our Gram loss encourages a semi-orthogonal compressed representation so the available latent dimensions are used effectively.</li>
+            <li><strong>Flexible Formats:</strong> The same framework supports meshes, point clouds, and radiance fields by pairing suitable existing encoders and generative-model decoders; the mapping networks are trained once for each encoder–decoder pair and compressed dimension.</li>
+          </ul>
+          <p style="margin-top: 1rem;">
+            After one-time training for an encoder–decoder pair, each object is compressed and decompressed with feed-forward inference and no per-object optimization.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!--/ Squeeze3D Method. -->
 
 <section class="hero is-light is-small">
   <div class="hero-body has-text-centered">
