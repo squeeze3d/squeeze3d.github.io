@@ -35,7 +35,7 @@ let setTheme = (theme) =>  {
   if (typeof medium_zoom !== 'undefined') {
     medium_zoom.update({
       background: getComputedStyle(document.documentElement)
-          .getPropertyValue('--global-bg-color') + 'ee',  // + 'ee' for trasparency.
+          .getPropertyValue('--global-bg-color') + 'ee',  // + 'ee' for transparency.
     })
   }
 };
